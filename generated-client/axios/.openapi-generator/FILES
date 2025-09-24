@@ -1,0 +1,16 @@
+.gitignore
+.npmignore
+.openapi-generator-ignore
+README.md
+api.ts
+base.ts
+common.ts
+configuration.ts
+docs/DefaultApi.md
+docs/PlaceBidRequest.md
+docs/PlaceBidResponse.md
+docs/ProblemDetails.md
+git_push.sh
+index.ts
+package.json
+tsconfig.json
