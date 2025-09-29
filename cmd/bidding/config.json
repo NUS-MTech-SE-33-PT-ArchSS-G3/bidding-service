@@ -1,0 +1,57 @@
+{
+  "app": {
+    "name": "bidding service",
+    "environment": "development",
+    "version": "1.0.0"
+  },
+  "network": {
+    "Port": 8080,
+    "IsLocalHost": false,
+    "ssl": {
+      "enabled": false,
+      "certFile": "",
+      "keyFile": "",
+      "caFile": ""
+    }
+  },
+  "Cors": {
+    "isEnabled": true,
+    "allowOrigins": ["http://localhost:8080"],
+    "allowMethods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    "allowHeaders": ["Authorization", "Content-Type", "X-Requested-With"],
+    "exposeHeaders": ["ETag"],
+    "allowCredentials": true,
+    "allowMaxAge": 600
+  },
+  "Swagger": {
+    "IsEnabled": true,
+    "Title": "Bidding Service API"
+  },
+  "Pprof": {
+    "IsEnabled": true,
+    "Port": 6060
+  },
+  "Logger": {
+    "level": "debug",
+    "format": "console",
+    "output": "both",
+    "filePath": "./log/ddm-control.log"
+  },
+  "SqlDb": {
+    "user": "root",
+    "port": 3306,
+    "dbName": "DenDenMushi",
+    "params": "charset=utf8mb4&parseTime=True&loc=Local",
+    "maxIdleConns": 2,
+    "maxOpenConns": 10,
+    "connMaxLifetimeMinutes": 30,
+    "sslEnabled": false,
+    "logLevel": 4
+  },
+  "redis": {
+    "Addr": "localhost",
+    "port": 6379,
+    "poolSize": 10,
+    "password": ""
+  }
+}

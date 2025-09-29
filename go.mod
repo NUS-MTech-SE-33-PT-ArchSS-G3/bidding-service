@@ -29,6 +29,7 @@ require (
 	github.com/getkin/kin-openapi v0.132.0
 	github.com/oapi-codegen/runtime v1.1.2
 	github.com/segmentio/kafka-go v0.4.49
+	moul.io/zapgorm2 v1.3.0
 )
 
 require (
