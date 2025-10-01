@@ -4,6 +4,10 @@ import (
 	"kei-services/pkg/config"
 	"kei-services/pkg/infra/kafka"
 	"kei-services/pkg/infra/mysql"
+	"kei-services/pkg/infra/redis"
+	"kei-services/pkg/logger"
+	"kei-services/pkg/profiler"
+	swagger "kei-services/pkg/swagger"
 )
 
 type Config struct {
@@ -13,15 +17,15 @@ type Config struct {
 
 	Cors *config.Cors
 
-	Pprof *config.Pprof
+	Pprof *profiler.Config
 
-	Swagger *config.Swagger
+	Swagger *swagger.Config
 
-	Logger *config.Logger
+	Logger *logger.Config
 
 	SqlDb *mysql.SqlDbConfig
 
-	Redis *config.Redis
+	Redis *redis.Config
 
 	KafkaWriter *kafka.WriterConfig
 }

@@ -10,7 +10,15 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func Init(loggerCfg *config.Logger, appCfg *config.App) *zap.Logger {
+type Config struct {
+	Level       string
+	Format      string
+	Output      string
+	FilePath    string
+	Environment config.Environment
+}
+
+func Init(loggerCfg *Config, appCfg *config.App) *zap.Logger {
 	level := getLogLevel(loggerCfg)
 	encoder := getLogEncoder(loggerCfg)
 
@@ -58,7 +66,7 @@ func Init(loggerCfg *config.Logger, appCfg *config.App) *zap.Logger {
 	}
 }
 
-func getLogLevel(cfg *config.Logger) zapcore.Level {
+func getLogLevel(cfg *Config) zapcore.Level {
 	var level zapcore.Level
 	if err := level.UnmarshalText([]byte(cfg.Level)); err != nil {
 		return zapcore.InfoLevel
@@ -66,7 +74,7 @@ func getLogLevel(cfg *config.Logger) zapcore.Level {
 	return level
 }
 
-func getLogEncoder(cfg *config.Logger) zapcore.Encoder {
+func getLogEncoder(cfg *Config) zapcore.Encoder {
 	encoderCfg := zap.NewProductionEncoderConfig()
 	encoderCfg.TimeKey = "timestamp"
 	encoderCfg.EncodeTime = zapcore.ISO8601TimeEncoder

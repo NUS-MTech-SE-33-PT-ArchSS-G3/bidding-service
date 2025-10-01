@@ -1,8 +1,6 @@
 package server
 
 import (
-	"kei-services/pkg/config"
-
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 	swgui "github.com/swaggest/swgui/v4"
@@ -10,7 +8,13 @@ import (
 	"go.uber.org/zap"
 )
 
-func Serve(getSwagger func() (*openapi3.T, error), r *gin.Engine, cfg *config.Swagger, log *zap.Logger) {
+type Config struct {
+	IsEnabled   bool   `json:"IsEnabled"`
+	Title       string `json:"Title"`
+	OpenApiName string `json:"OpenApiName"`
+}
+
+func Serve(getSwagger func() (*openapi3.T, error), r *gin.Engine, cfg *Config, log *zap.Logger) {
 	if cfg.IsEnabled {
 		log.Info("Serving Swagger UI")
 		r.StaticFile("/swagger-spec/"+cfg.OpenApiName+".yaml", "./swagger/"+cfg.OpenApiName+".yaml")

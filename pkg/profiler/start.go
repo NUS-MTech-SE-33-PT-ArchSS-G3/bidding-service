@@ -1,9 +1,7 @@
 package profiler
 
 import (
-	"errors"
 	"fmt"
-	"kei-services/pkg/config"
 	"net/http"
 	"net/http/pprof"
 	"time"
@@ -11,10 +9,15 @@ import (
 	"go.uber.org/zap"
 )
 
-func Start(cfg *config.Pprof, log *zap.Logger) {
+type Config struct {
+	IsEnabled bool `json:"IsEnabled"`
+	Port      int  `json:"Port"`
+}
+
+func Start(cfg *Config, log *zap.Logger) error {
 	if !cfg.IsEnabled {
 		log.Info("pprof is disabled")
-		return
+		return nil
 	}
 
 	mux := http.NewServeMux()
@@ -36,16 +39,12 @@ func Start(cfg *config.Pprof, log *zap.Logger) {
 		IdleTimeout:       120 * time.Second,
 	}
 
-	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				log.Error("panic", zap.Any("panic", r), zap.Stack("stack"))
-			}
-		}()
-
-		log.Info("pprof listening", zap.String("addr", addr))
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Warn("pprof server error", zap.Error(err))
+	defer func() {
+		if r := recover(); r != nil {
+			log.Error("panic", zap.Any("panic", r), zap.Stack("stack"))
 		}
 	}()
+
+	log.Info("pprof listening", zap.String("addr", addr))
+	return srv.ListenAndServe()
 }

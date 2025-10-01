@@ -3,6 +3,7 @@ package cfg
 import (
 	"kei-services/pkg/config"
 	"kei-services/pkg/infra/mysql"
+	"kei-services/pkg/infra/redis"
 	"log"
 	"path/filepath"
 	"strings"
@@ -27,7 +28,7 @@ func Load(path string) *Config {
 
 	// env bindings
 	config.BindSsl(v)
-	config.BindRedis(v)
+	redis.BindEnv(v)
 	mysql.BindSqlDb(v, "SQL_DB", "SqlDb")
 
 	if err := v.ReadInConfig(); err != nil {

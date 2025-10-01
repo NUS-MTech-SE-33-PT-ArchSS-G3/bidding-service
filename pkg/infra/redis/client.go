@@ -3,14 +3,25 @@ package redis
 import (
 	"context"
 	"fmt"
-	"kei-services/pkg/config"
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-func Client(cfg *config.Redis, log *zap.Logger) (*redis.Client, error) {
+type Config struct {
+	Addr     string
+	Password string `json:"-"`
+	PoolSize int
+	Port     string
+}
+
+func BindEnv(v *viper.Viper) {
+	_ = v.BindEnv("redis.password", "REDIS_PASSWORD")
+}
+
+func Client(cfg *Config, log *zap.Logger) (*redis.Client, error) {
 	log.Info("Connecting to Redis...")
 	log.Debug("Connection parameters",
 		zap.String("Host", cfg.Addr),
