@@ -5,35 +5,37 @@ import (
 	"fmt"
 	"kei-services/internal/bidding/application"
 	"kei-services/internal/bidding/domain"
-	"time"
+
+	"go.uber.org/zap"
 )
 
 type Service struct {
-	BidRepo application.BidRepository
-	Cache   application.AuctionMetadataStore
-	Pub     application.BidsPlacedPublisher
-	Tx      application.TxManager
-	Clock   application.Clock
+	BidRepo application.IBidRepository
+	Cache   application.IAuctionMetadataStore
+	Pub     application.IBidsPlacedPublisher
+	Tx      application.ITxManager
+	Clock   application.IClock
+	Log     *zap.Logger
 }
 
 var _ IService = (*Service)(nil)
 
 type Deps struct {
-	BidRepo application.BidRepository
-	Cache   application.AuctionMetadataStore
-	Pub     application.BidsPlacedPublisher
-	Tx      application.TxManager
-	Clock   application.Clock
-	IdemTTL time.Duration
+	BidRepo application.IBidRepository
+	Cache   application.IAuctionMetadataStore
+	Pub     application.IBidsPlacedPublisher
+	Tx      application.ITxManager
+	Clock   application.IClock
 }
 
-func NewService(d Deps) *Service {
+func NewService(d Deps, log *zap.Logger) *Service {
 	return &Service{
 		BidRepo: d.BidRepo,
 		Cache:   d.Cache,
 		Pub:     d.Pub,
 		Tx:      d.Tx,
 		Clock:   d.Clock,
+		Log:     log,
 	}
 }
 

@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ application.BidRepository = (*BidRepo)(nil)
+var _ application.IBidRepository = (*BidRepo)(nil)
 
 type BidRepo struct {
 	DB  *sql.DB

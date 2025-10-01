@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ application.AuctionMetadataStore = (*AuctionMetadataCache)(nil)
+var _ application.IAuctionMetadataStore = (*AuctionMetadataCache)(nil)
 
 type AuctionMetadataCache struct {
 	CacheKey string

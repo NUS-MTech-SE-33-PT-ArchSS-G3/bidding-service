@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ application.BidsPlacedPublisher = (*BidsPublisher)(nil)
+var _ application.IBidsPlacedPublisher = (*BidsPublisher)(nil)
 
 type BidsPublisher struct {
 	Writer *kafka.Writer

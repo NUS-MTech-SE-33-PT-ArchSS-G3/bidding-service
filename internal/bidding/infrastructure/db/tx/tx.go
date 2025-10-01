@@ -3,14 +3,21 @@ package tx
 import (
 	"context"
 	"database/sql"
+	"kei-services/internal/bidding/application"
 )
 
-type Manager struct{ DB *sql.DB }
+var _ application.ITxManager = (*TxManager)(nil)
+
+type TxManager struct{ DB *sql.DB }
+
+func NewTxManager(db *sql.DB) TxManager {
+	return TxManager{DB: db}
+}
 
 type txKey struct{}
 
 // WithinTx executes the given function within a db transaction
-func (m Manager) WithinTx(ctx context.Context, fn func(ctx context.Context) error) error {
+func (m TxManager) WithinTx(ctx context.Context, fn func(ctx context.Context) error) error {
 	if _, ok := ctx.Value(txKey{}).(*sql.Tx); ok {
 		// context already has a transaction, so just call the function
 		return fn(ctx)

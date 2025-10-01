@@ -12,19 +12,19 @@ import (
 	"go.uber.org/zap"
 )
 
-type Controller struct {
+type PlaceBidController struct {
 	log *zap.Logger
 	svc place_bid.IService
 }
 
-func NewController(log *zap.Logger, svc place_bid.IService) *Controller {
-	return &Controller{log: log, svc: svc}
+func NewPlaceBidController(log *zap.Logger, svc place_bid.IService) *PlaceBidController {
+	return &PlaceBidController{log: log, svc: svc}
 }
 
-var _ api.ServerInterface = (*Controller)(nil)
+var _ api.ServerInterface = (*PlaceBidController)(nil)
 
 // todo: add logging
-func (h *Controller) PostAuctionsAuctionIdBids(c *gin.Context, auctionId string, params api.PostAuctionsAuctionIdBidsParams) {
+func (h *PlaceBidController) PostAuctionsAuctionIdBids(c *gin.Context, auctionId string, params api.PostAuctionsAuctionIdBidsParams) {
 	var req api.PlaceBidRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		writeProblem(c, http.StatusBadRequest,
@@ -81,7 +81,7 @@ func (h *Controller) PostAuctionsAuctionIdBids(c *gin.Context, auctionId string,
 }
 
 // todo: improve error handling and logging
-func (h *Controller) handleError(c *gin.Context, err error) {
+func (h *PlaceBidController) handleError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, place_bid.ErrUnauthorized):
 		writeProblem(c, http.StatusUnauthorized,
