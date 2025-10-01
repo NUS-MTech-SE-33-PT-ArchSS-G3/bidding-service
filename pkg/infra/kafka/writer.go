@@ -23,7 +23,7 @@ func NewWriter(cfg WriterConfig) *kafka.Writer {
 	w := &kafka.Writer{
 		Addr:         kafka.TCP(cfg.Brokers...),
 		Topic:        cfg.Topic,
-		Balancer:     firstNonNil(cfg.Balancer, &kafka.Hash{}), // hash by Key
+		Balancer:     balancerOrDefault(cfg.Balancer), // hash by Key
 		RequiredAcks: firstAcks(cfg.Acks, kafka.RequireAll),
 		Compression:  firstCompression(cfg.Compression, kafka.Snappy),
 		BatchTimeout: 20 * time.Millisecond,
@@ -38,7 +38,12 @@ func NewWriter(cfg WriterConfig) *kafka.Writer {
 	return w
 }
 
-func firstNonNil[T any](v, def T) T { return v }
+func balancerOrDefault(b kafka.Balancer) kafka.Balancer {
+	if b != nil {
+		return b
+	}
+	return &kafka.Hash{}
+}
 
 func firstAcks(v, def kafka.RequiredAcks) kafka.RequiredAcks {
 	if v == 0 {
