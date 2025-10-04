@@ -8,9 +8,11 @@ import (
 	"kei-services/internal/bidding/infrastructure/mq"
 	"kei-services/internal/bidding/server"
 	"kei-services/pkg/config"
-	"kei-services/pkg/infra/mysql"
+	kafkaInfra "kei-services/pkg/infra/kafka"
+	"kei-services/pkg/infra/postgres"
 	"kei-services/pkg/infra/redis"
 	"kei-services/pkg/logger"
+	"kei-services/sqlc"
 	"net/http"
 	"os"
 	"os/signal"
@@ -37,10 +39,14 @@ func main() {
 	log.Info("Starting App", zap.String("version", cfg.App.Version))
 
 	//// Connect to infrastructures
-	// Database
-	db, err := mysql.Client(cfg.SqlDb, &cfg.Network.Ssl, log)
+	// postgres
+	db, err := postgres.Client(cfg.Postgres, &cfg.Network.Ssl, log)
 	if err != nil {
 		log.Fatal("Failed to connect to database", zap.Error(err))
+	}
+	sqlDB, _ := db.DB()
+	if err := sqlc.EnsureSchema(context.Background(), sqlDB); err != nil {
+		log.Fatal("apply schema", zap.Error(err))
 	}
 	defer func() {
 		if sqlDB, derr := db.DB(); derr == nil {
@@ -115,9 +121,7 @@ func main() {
 
 	select {
 	case <-sigCtx.Done():
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-		_ = server.Shutdown(shutdownCtx, s, log)
+		log.Info("shutdown signal received")
 	case err = <-errCh:
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal("http: server error", zap.Error(err))

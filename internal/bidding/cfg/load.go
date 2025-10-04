@@ -2,7 +2,7 @@ package cfg
 
 import (
 	"kei-services/pkg/config"
-	"kei-services/pkg/infra/mysql"
+	"kei-services/pkg/infra/postgres"
 	"kei-services/pkg/infra/redis"
 	"log"
 	"path/filepath"
@@ -29,7 +29,7 @@ func Load(path string) *Config {
 	// env bindings
 	config.BindSsl(v)
 	redis.BindEnv(v)
-	mysql.BindSqlDb(v, "SQL_DB", "SqlDb")
+	postgres.BindPostgresDb(v, "PGDB", "postgres")
 
 	if err := v.ReadInConfig(); err != nil {
 		log.Fatalf("Failed to read config file: %v", err)
