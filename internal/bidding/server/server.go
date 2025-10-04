@@ -55,6 +55,7 @@ func New(db *gorm.DB, redis *redis.Client, w *kafka.Writer, cfg *cfg.Config, log
 		return openapi.GetSwagger()
 	}, r, cfg.Swagger, log)
 
+	registerHealthroutes(r, db, redis, log)
 	registerProtectedRoutes(r, initDependencies(db, redis, w, cfg, log), cfg, log)
 
 	r.NoRoute(func(c *gin.Context) { c.JSON(404, gin.H{"error": "not found"}) })
