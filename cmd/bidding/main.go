@@ -68,21 +68,35 @@ func main() {
 		// allow comma-separated
 		brokers = splitCSV(host)
 	}
-	openedReader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  brokers,
-		Topic:    "auction.opened",
-		GroupID:  "bidding-meta-sync",
-		MinBytes: 1, MaxBytes: 10 << 20,
+	//openedReader := kafka.NewReader(kafka.ReaderConfig{
+	//	Brokers:  brokers,
+	//	Topic:    "auction.opened",
+	//	GroupID:  "bidding-meta-sync",
+	//	MinBytes: 1, MaxBytes: 10 << 20,
+	//})
+	//defer openedReader.Close()
+	//
+	//closedReader := kafka.NewReader(kafka.ReaderConfig{
+	//	Brokers: brokers,
+	//	Topic:   "auction.closed",
+	//	GroupID: "bidding-meta-sync",
+	//})
+	//defer closedReader.Close()
+	openedReader := kafkaInfra.NewReader(kafkaInfra.ReaderConfig{
+		Brokers: brokers,
+		Topic:   "auction.opened",
+		GroupID: "bidding-meta-sync",
+		Offset:  kafkaInfra.OffsetLast, // or OffsetFirst for fresh groups
 	})
 	defer openedReader.Close()
 
-	closedReader := kafka.NewReader(kafka.ReaderConfig{
+	closedReader := kafkaInfra.NewReader(kafkaInfra.ReaderConfig{
 		Brokers: brokers,
 		Topic:   "auction.closed",
 		GroupID: "bidding-meta-sync",
+		Offset:  kafkaInfra.OffsetLast,
 	})
 	defer closedReader.Close()
-
 	sub := &mq.AuctionMetaSubscriber{
 		Log:          log,
 		OpenedReader: openedReader,
@@ -99,11 +113,19 @@ func main() {
 	}()
 
 	// Kafka writer for publishing BidPlaced (if you have a helper, use that)
-	writer := &kafka.Writer{
-		Addr:     kafka.TCP(brokers...),
+	//writer := &kafka.Writer{
+	//	Addr:     kafka.TCP(brokers...),
+	//	Topic:    "bids.placed",
+	//	Balancer: &kafka.Hash{},
+	//}
+	writer := kafkaInfra.NewWriter(kafkaInfra.WriterConfig{
+		Brokers:  brokers,
 		Topic:    "bids.placed",
-		Balancer: &kafka.Hash{},
-	}
+		ClientID: "bidding-service",
+		Acks:     kafka.RequireAll,
+		// Compression: kafka.Snappy,
+		// Balancer:    &kafka.Hash{},
+	})
 	defer writer.Close()
 
 	//// Create and start server

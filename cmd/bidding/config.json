@@ -37,7 +37,7 @@
     "output": "both",
     "filePath": "./log/ddm-control.log"
   },
-  "SqlDb": {
+  "Postgres": {
     "user": "root",
     "port": 3306,
     "dbName": "DenDenMushi",
@@ -46,6 +46,7 @@
     "maxOpenConns": 10,
     "connMaxLifetimeMinutes": 30,
     "sslEnabled": false,
+    "sslMode": "disable",
     "logLevel": 4
   },
   "redis": {

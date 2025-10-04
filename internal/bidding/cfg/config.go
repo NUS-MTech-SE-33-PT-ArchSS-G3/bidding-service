@@ -3,7 +3,7 @@ package cfg
 import (
 	"kei-services/pkg/config"
 	"kei-services/pkg/infra/kafka"
-	"kei-services/pkg/infra/mysql"
+	"kei-services/pkg/infra/postgres"
 	"kei-services/pkg/infra/redis"
 	"kei-services/pkg/logger"
 	"kei-services/pkg/profiler"
@@ -23,7 +23,7 @@ type Config struct {
 
 	Logger *logger.Config
 
-	SqlDb *mysql.SqlDbConfig
+	Postgres *postgres.Config
 
 	Redis *redis.Config
 
