@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"kei-services/internal/bidding/cfg"
 	"kei-services/internal/bidding/infrastructure/cache"
 	"kei-services/internal/bidding/infrastructure/mq"
@@ -26,9 +27,15 @@ import (
 	"go.uber.org/zap"
 )
 
+var cfgFlag = flag.String("config", "", "path to config file (optional)")
+
 func main() {
+	flag.Parse() // parse -config flag
 	_ = godotenv.Load(".env")
-	cfg := cfg.Load(config.Path())
+	cfg, err := cfg.Load(config.Path())
+	if err != nil {
+		panic(err)
+	}
 
 	log := logger.Init(cfg.Logger, cfg.App)
 	if log == nil {

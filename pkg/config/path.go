@@ -6,20 +6,30 @@ import (
 	"path/filepath"
 )
 
-// Path usage: go run main.go -config /path/to/config.json
+// Path resolves the config file location
 func Path() string {
-	configPath := flag.String("config", "", "path to config file (optional)")
-	flag.Parse()
-
-	var finalPath string
-	if *configPath != "" {
-		finalPath = *configPath
-	} else {
-		// default to config.json next to executable
-		exe, _ := os.Executable()
-		exeDir := filepath.Dir(exe)
-		finalPath = filepath.Join(exeDir, "config.json")
+	// 1st pref, explicit env
+	if p := os.Getenv("CONFIG_PATH"); p != "" {
+		return p
 	}
 
-	return finalPath
+	// 2nd pref: -config flag value
+	if flag.Parsed() {
+		if f := flag.Lookup("config"); f != nil {
+			if v := f.Value.String(); v != "" {
+				return v
+			}
+		}
+	}
+
+	// 3rd pref: container default
+	if _, err := os.Stat("/app/config.json"); err == nil {
+		return "/app/config.json"
+	}
+
+	// 4th pref: next to exe
+	if exe, err := os.Executable(); err == nil {
+		return filepath.Join(filepath.Dir(exe), "config.json")
+	}
+	return "config.json"
 }

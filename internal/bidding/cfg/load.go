@@ -1,30 +1,25 @@
 package cfg
 
 import (
+	"fmt"
 	"kei-services/pkg/config"
 	"kei-services/pkg/infra/postgres"
 	"kei-services/pkg/infra/redis"
 	"log"
-	"path/filepath"
+	"os"
 	"strings"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 )
 
-func Load(path string) *Config {
+func Load(path string) (*Config, error) {
 	var cfg Config
 
-	dir := filepath.Dir(path)
-	filename := filepath.Base(path)
-	name := strings.TrimSuffix(filename, filepath.Ext(filename))
-
 	v := viper.New()
-	v.SetConfigName(name)
-	v.SetConfigType("json")
-	v.AddConfigPath(dir)
-	v.AutomaticEnv()
+	v.SetConfigFile(path)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.AutomaticEnv()
 
 	// env bindings
 	config.BindSsl(v)
@@ -32,14 +27,22 @@ func Load(path string) *Config {
 	postgres.BindPostgresDb(v, "PGDB", "postgres")
 
 	if err := v.ReadInConfig(); err != nil {
-		log.Fatalf("Failed to read config file: %v", err)
+		return nil, fmt.Errorf("read config from %q: %w", path, err)
+	}
+
+	// for kafka brokers
+	if s := os.Getenv("KAFKA_BROKERS"); s != "" {
+		parts := splitCSV(s)
+		if len(parts) > 0 {
+			v.Set("kafka.brokers", parts)
+		}
 	}
 
 	if err := v.Unmarshal(&cfg); err != nil {
-		log.Fatalf("Failed to unmarshal config: %v", err)
+		return nil, fmt.Errorf("unmarshal config: %w", err)
 	}
 
-	return &cfg
+	return &cfg, nil
 }
 
 func HotReload(path string, cfg *Config) {
@@ -48,4 +51,15 @@ func HotReload(path string, cfg *Config) {
 	v.OnConfigChange(func(e fsnotify.Event) {
 		log.Println("Config file changed:", e.Name)
 	})
+}
+
+func splitCSV(s string) []string {
+	parts := strings.FieldsFunc(s, func(r rune) bool { return r == ',' || r == ';' || r == ' ' })
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
 }

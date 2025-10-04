@@ -38,10 +38,10 @@
     "filePath": "./log/bid.log"
   },
   "Postgres": {
-    "user": "root",
-    "port": 3306,
-    "dbName": "DenDenMushi",
-    "params": "charset=utf8mb4&parseTime=True&loc=Local",
+    "user": "postgres",
+    "port": 5432,
+    "dbName": "bidding",
+    "params": "",
     "maxIdleConns": 2,
     "maxOpenConns": 10,
     "connMaxLifetimeMinutes": 30,
@@ -50,9 +50,19 @@
     "logLevel": 4
   },
   "redis": {
-    "Addr": "localhost",
+    "Addr": "redis",
     "port": 6379,
     "poolSize": 10,
     "password": ""
+  },
+  "kafka": {
+    "brokers": ["kafka:9092"],
+    "bidsTopic": "bids.placed",
+    "openedTopic": "auction.opened",
+    "closedTopic": "auction.closed",
+    "groupId": "bidding-meta-sync",
+    "clientId": "bidding-service",
+    "acks": "all",
+    "compression": "snappy"
   }
 }
