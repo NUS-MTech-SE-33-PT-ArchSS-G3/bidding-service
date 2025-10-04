@@ -34,8 +34,8 @@
   "Logger": {
     "level": "debug",
     "format": "console",
-    "output": "both",
-    "filePath": "./log/ddm-control.log"
+    "output": "stdout",
+    "filePath": "./log/bid.log"
   },
   "Postgres": {
     "user": "root",
