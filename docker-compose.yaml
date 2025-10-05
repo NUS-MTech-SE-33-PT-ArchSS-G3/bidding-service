@@ -106,6 +106,43 @@ services:
       retries: 30
       start_period: 10s
 
+
+################################################## Seed Data TODO: REMOVE IN PROD
+  seed-db:
+    image: postgres:18
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./scripts/seed/01_bids.sql:/seed/01_bids.sql:ro
+    entrypoint: [ "bash", "-lc",
+                  "psql 'postgres://postgres:postgres@postgres:5432/bidding?sslmode=disable' -v ON_ERROR_STOP=1 -f /seed/01_bids.sql" ]
+
+  seed-redis:
+    image: redis:8-alpine
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_PASSWORD=
+    volumes:
+      - ./scripts/seed/redis.sh:/seed/redis.sh:ro
+    entrypoint: [ "sh", "/seed/redis.sh" ]
+
+  seed-kafka:
+    image: edenhill/kcat:1.7.1
+    platform: linux/amd64
+    depends_on:
+      kafka:
+        condition: service_healthy
+      bidding:
+        condition: service_healthy
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+    volumes:
+      - ./scripts/seed/kafka.sh:/seed/kafka.sh:ro
+    entrypoint: [ "sh", "/seed/kafka.sh" ]
+
 volumes:
   pg-data:
   redis-data:
