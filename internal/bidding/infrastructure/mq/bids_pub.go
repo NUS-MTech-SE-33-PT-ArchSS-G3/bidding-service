@@ -3,7 +3,6 @@ package mq
 import (
 	"context"
 	"encoding/json"
-	"kei-services/internal/bidding/application"
 	"kei-services/internal/bidding/domain"
 	"time"
 
@@ -11,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ application.IBidsPlacedPublisher = (*BidsPublisher)(nil)
+var _ domain.IBidsPlacedPublisher = (*BidsPublisher)(nil)
 
 type BidsPublisher struct {
 	Writer *kafka.Writer

@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"kei-services/internal/bidding/application"
 	"kei-services/internal/bidding/domain"
 	"kei-services/internal/bidding/infrastructure/db/tx"
 	"kei-services/sqlc"
@@ -12,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ application.IBidRepository = (*BidRepo)(nil)
+var _ domain.IBidRepository = (*BidRepo)(nil)
 
 type BidRepo struct {
 	DB  *sql.DB
@@ -49,7 +48,7 @@ func (r *BidRepo) Insert(ctx context.Context, b *domain.Bid) (string, int64, err
 	return row.ID, row.Seq, nil
 }
 
-func (r *BidRepo) LatestForUpdate(ctx context.Context, auctionID string) (*application.LatestBid, error) {
+func (r *BidRepo) LatestForUpdate(ctx context.Context, auctionID string) (*domain.LatestBid, error) {
 	q := r.Q
 	if t, ok := tx.FromCtx(ctx); ok {
 		q = r.Q.WithTx(t)
@@ -63,7 +62,7 @@ func (r *BidRepo) LatestForUpdate(ctx context.Context, auctionID string) (*appli
 		return nil, err
 	}
 
-	return &application.LatestBid{
+	return &domain.LatestBid{
 		ID:     res.ID,
 		Amount: res.Amount,
 		Seq:    res.Seq,

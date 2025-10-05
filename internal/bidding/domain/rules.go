@@ -14,7 +14,7 @@ type LastAcceptedBid struct {
 // pass nil for LastAcceptedBid if no prior bid exists or for quick checks
 func ValidateBid(auction *AuctionMetadata, amount float64, b *LastAcceptedBid) error {
 	if auction == nil {
-		return ErrAuctionMetaNotFound
+		return ErrAuctionNotFound
 	}
 	if !auction.IsOpen() {
 		return ErrAuctionClosed

@@ -103,7 +103,7 @@ func (h *PlaceBidController) handleError(c *gin.Context, err error) {
 			"Bid rejected: below minimum increment",
 			err.Error(), // e.g., "next valid bid must be >= 102.5"
 		)
-	case errors.Is(err, domain.ErrAuctionMetaNotFound):
+	case errors.Is(err, domain.ErrAuctionNotFound):
 		writeProblem(c, http.StatusUnprocessableEntity,
 			"https://example.com/problems/auction-not-found",
 			"Auction not found",

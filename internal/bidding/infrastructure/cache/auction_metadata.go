@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"kei-services/internal/bidding/application"
 	"kei-services/internal/bidding/domain"
 	"time"
 
@@ -12,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ application.IAuctionMetadataStore = (*AuctionMetadataCache)(nil)
+var _ domain.IAuctionMetadataStore = (*AuctionMetadataCache)(nil)
 
 type AuctionMetadataCache struct {
 	CacheKey string
