@@ -3,7 +3,7 @@ package tx
 import (
 	"context"
 	"database/sql"
-	"kei-services/internal/bidding/application"
+	"kei-services/internal/bid-command/application"
 )
 
 var _ application.ITxManager = (*TxManager)(nil)

@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"kei-services/internal/bidding/domain"
-	"kei-services/internal/bidding/infrastructure/db/tx"
+	"kei-services/internal/bid-command/domain"
+	"kei-services/internal/bid-command/infrastructure/db/tx"
 	"kei-services/sqlc"
 
 	"go.uber.org/zap"

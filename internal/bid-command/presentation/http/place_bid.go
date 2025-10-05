@@ -3,8 +3,8 @@ package http
 import (
 	"errors"
 	"fmt"
-	"kei-services/internal/bidding/application/place_bid"
-	"kei-services/internal/bidding/domain"
+	"kei-services/internal/bid-command/application/place_bid"
+	"kei-services/internal/bid-command/domain"
 	api "kei-services/openapi"
 	"net/http"
 

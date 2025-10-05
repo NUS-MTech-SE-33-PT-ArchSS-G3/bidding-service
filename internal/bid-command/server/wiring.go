@@ -1,12 +1,12 @@
 package server
 
 import (
-	"kei-services/internal/bidding/application/place_bid"
-	"kei-services/internal/bidding/cfg"
-	"kei-services/internal/bidding/infrastructure/cache"
-	"kei-services/internal/bidding/infrastructure/db/repo"
-	"kei-services/internal/bidding/infrastructure/db/tx"
-	"kei-services/internal/bidding/infrastructure/mq"
+	"kei-services/internal/bid-command/application/place_bid"
+	"kei-services/internal/bid-command/cfg"
+	"kei-services/internal/bid-command/infrastructure/cache"
+	"kei-services/internal/bid-command/infrastructure/db/repo"
+	"kei-services/internal/bid-command/infrastructure/db/tx"
+	"kei-services/internal/bid-command/infrastructure/mq"
 	"time"
 
 	"github.com/redis/go-redis/v9"

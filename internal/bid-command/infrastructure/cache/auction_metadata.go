@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"kei-services/internal/bidding/domain"
+	"kei-services/internal/bid-command/domain"
 	"time"
 
 	"github.com/redis/go-redis/v9"

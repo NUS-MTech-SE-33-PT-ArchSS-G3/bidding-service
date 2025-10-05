@@ -3,61 +3,65 @@ package place_bid
 import (
 	"context"
 	"fmt"
-	"kei-services/internal/bidding/application"
-	"kei-services/internal/bidding/domain"
+	"kei-services/internal/bid-command/application"
+	"kei-services/internal/bid-command/domain"
 
 	"go.uber.org/zap"
 )
 
 type Service struct {
-	BidRepo application.IBidRepository
-	Cache   application.IAuctionMetadataStore
-	Pub     application.IBidsPlacedPublisher
-	Tx      application.ITxManager
-	Clock   application.IClock
-	Log     *zap.Logger
+	bidRepo domain.IBidRepository
+	cache   domain.IAuctionMetadataStore
+	pub     domain.IBidsPlacedPublisher
+	tx      application.ITxManager
+	clock   domain.IClock
+	log     *zap.Logger
 }
 
 var _ IService = (*Service)(nil)
 
 type Deps struct {
-	BidRepo application.IBidRepository
-	Cache   application.IAuctionMetadataStore
-	Pub     application.IBidsPlacedPublisher
+	BidRepo domain.IBidRepository
+	Cache   domain.IAuctionMetadataStore
+	Pub     domain.IBidsPlacedPublisher
 	Tx      application.ITxManager
-	Clock   application.IClock
+	Clock   domain.IClock
 }
 
 func NewService(d Deps, log *zap.Logger) *Service {
 	return &Service{
-		BidRepo: d.BidRepo,
-		Cache:   d.Cache,
-		Pub:     d.Pub,
-		Tx:      d.Tx,
-		Clock:   d.Clock,
-		Log:     log,
+		bidRepo: d.BidRepo,
+		cache:   d.Cache,
+		pub:     d.Pub,
+		tx:      d.Tx,
+		clock:   d.Clock,
+		log:     log,
 	}
 }
 
 // Handle processes the PlaceBid command
 func (s *Service) Handle(ctx context.Context, cmd Command) (*Result, error) {
+	s.log.Info("placing bid", zap.String("auction_id", cmd.AuctionID), zap.String("bidder_id", cmd.BidderID), zap.Float64("amount", cmd.Amount))
 	// fast pre-check using cache
-	auction, err := s.Cache.Get(ctx, cmd.AuctionID)
+	auction, err := s.cache.Get(ctx, cmd.AuctionID)
 	if err != nil {
+		s.log.Warn("cache miss or error", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
 		return nil, fmt.Errorf("load auction meta: %w", err)
 	}
 	if err = domain.ValidateBid(auction, cmd.Amount, nil); err != nil {
+		s.log.Warn("validate bid failed", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
 		return nil, err
 	}
 
-	bid := domain.NewBid(cmd.AuctionID, cmd.BidderID, cmd.Amount, s.Clock.Now().UTC())
+	bid := domain.NewBid(cmd.AuctionID, cmd.BidderID, cmd.Amount, s.clock.Now().UTC())
 
 	// authoritative check against latest bid inside DB transaction
 	var out *Result
-	err = s.Tx.WithinTx(ctx, func(ctx context.Context) error {
+	err = s.tx.WithinTx(ctx, func(ctx context.Context) error {
 		// get latest bid with row lock to serialize concurrent bids
-		latest, err := s.BidRepo.LatestForUpdate(ctx, cmd.AuctionID)
+		latest, err := s.bidRepo.LatestForUpdate(ctx, cmd.AuctionID)
 		if err != nil {
+			s.log.Warn("get latest for update", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
 			return err
 		}
 
@@ -76,8 +80,9 @@ func (s *Service) Handle(ctx context.Context, cmd Command) (*Result, error) {
 		}
 
 		// persist the bid
-		id, seq, err := s.BidRepo.Insert(ctx, bid)
+		id, seq, err := s.bidRepo.Insert(ctx, bid)
 		if err != nil {
+			s.log.Warn("insert bid failed", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
 			return err
 		}
 		if id != "" {
@@ -112,12 +117,13 @@ func (s *Service) Handle(ctx context.Context, cmd Command) (*Result, error) {
 		return nil
 	})
 	if err != nil {
+		s.log.Warn("place bid tx failed", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
 		return nil, err
 	}
 
 	// publish after commit
 	// todo: maybe use outbox pattern if have time
-	_ = s.Pub.Publish(ctx, domain.BidPlaced{
+	_ = s.pub.Publish(ctx, domain.BidPlaced{
 		AuctionID: out.AuctionID,
 		BidID:     out.BidID,
 		BidderID:  out.BidderID,
@@ -126,5 +132,4 @@ func (s *Service) Handle(ctx context.Context, cmd Command) (*Result, error) {
 	})
 
 	return out, nil
-
 }

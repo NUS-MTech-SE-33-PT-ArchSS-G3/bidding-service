@@ -4,7 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"kei-services/internal/bidding/cfg"
+	"kei-services/internal/bid-command/cfg"
 	"kei-services/openapi"
 	"kei-services/pkg/middleware"
 	swagger "kei-services/pkg/swagger"

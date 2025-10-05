@@ -3,7 +3,7 @@ package mq
 import (
 	"context"
 	"encoding/json"
-	"kei-services/internal/bidding/domain"
+	"kei-services/internal/bid-command/domain"
 	"time"
 
 	"github.com/segmentio/kafka-go"

@@ -21,7 +21,7 @@ COPY . .
 # - CGO_ENABLED=0 for static linking
 # - -ldflags="-s -w" strips symbol/debug info to reduce size
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-    go build -trimpath -ldflags="-s -w" -o /bin/bidding ./cmd/bidding
+    go build -trimpath -ldflags="-s -w" -o /bin/bid-command ./cmd/bid-command
 
 # ------------------------------------------------------------
 # Runtime stage
@@ -40,7 +40,7 @@ RUN apk add --no-cache ca-certificates tzdata curl \
 WORKDIR /app
 
 # copy compiled binary from builder stage
-COPY --from=builder /bin/bidding /app/bidding
+COPY --from=builder /bin/bid-command /app/bid-command
 
 # use non root user to run
 USER appuser
@@ -53,4 +53,4 @@ HEALTHCHECK --interval=10s --timeout=3s --retries=3 \
   CMD curl -fsS http://127.0.0.1:8080/healthz || exit 1
 
 # run the binary
-ENTRYPOINT ["/app/bidding"]
+ENTRYPOINT ["/app/bid-command"]

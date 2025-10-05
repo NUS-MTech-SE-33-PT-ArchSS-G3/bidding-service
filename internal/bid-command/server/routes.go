@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
-	"kei-services/internal/bidding/cfg"
-	httpPresentation "kei-services/internal/bidding/presentation/http"
+	"kei-services/internal/bid-command/cfg"
+	httpPresentation "kei-services/internal/bid-command/presentation/http"
 	"kei-services/openapi"
 	"net/http"
 	"time"
