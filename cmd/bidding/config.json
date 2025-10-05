@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "bidding service",
+    "name": "bidding command service",
     "environment": "development",
     "version": "1.0.0"
   },
@@ -25,7 +25,8 @@
   },
   "Swagger": {
     "IsEnabled": true,
-    "Title": "Bidding Service API"
+    "Title": "Bidding Command Service API",
+    "OpenApiName": "openapi"
   },
   "Pprof": {
     "IsEnabled": true,

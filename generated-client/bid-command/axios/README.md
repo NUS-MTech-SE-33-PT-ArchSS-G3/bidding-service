@@ -1,4 +1,4 @@
-## @kei/bidding-api-client@1.0.0
+## @kei/bidding-command-api-client@1.0.0
 
 This generator creates TypeScript/JavaScript client that utilizes [axios](https://github.com/axios/axios). The generated Node module can be used in the following environments:
 
@@ -36,7 +36,7 @@ navigate to the folder of your consuming project and run one of the following co
 _published:_
 
 ```
-npm install @kei/bidding-api-client@1.0.0 --save
+npm install @kei/bidding-command-api-client@1.0.0 --save
 ```
 
 _unPublished (not recommended):_
@@ -47,7 +47,7 @@ npm install PATH_TO_GENERATED_PACKAGE --save
 
 ### Documentation for API Endpoints
 
-All URIs are relative to *http://localhost:8080*
+All URIs are relative to *http://localhost:8081*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------

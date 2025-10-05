@@ -14,7 +14,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { ProblemDetails } from '@kei/bidding-api-client';
+import { ProblemDetails } from '@kei/bidding-command-api-client';
 
 const instance: ProblemDetails = {
     type,

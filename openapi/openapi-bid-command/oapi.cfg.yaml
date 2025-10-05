@@ -1,5 +1,5 @@
 package: openapi
-output: ./api.gen.go
+output: ../openapi/openapi-bid-command/api.gen.go
 
 generate:
   - types

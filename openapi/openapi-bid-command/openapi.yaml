@@ -1,10 +1,10 @@
 openapi: 3.0.3
 info:
-  title: Bidding Service API
+  title: Bidding Command Service API
   version: 1.0.0
 
 servers:
-  - url: http://localhost:8080
+  - url: http://localhost:8081
 
 paths:
   /auctions/{auctionId}/bids:
@@ -12,8 +12,6 @@ paths:
       summary: Place a bid on an auction
       description: >
         Place a new bid for a given auction.  
-        Requires a valid JWT token.  
-        Uses an Idempotency-Key header to ensure retries are safe.
       security:
         - bearerAuth: []
       parameters:
@@ -22,13 +20,7 @@ paths:
           required: true
           schema:
             type: string
-          description: ID of the auction to bid on.
-        - in: header
-          name: Idempotency-Key
-          required: true
-          schema:
-            type: string
-          description: Unique key to prevent duplicate bid submissions
+          description: ID of the auction to bid on
       requestBody:
         required: true
         content:

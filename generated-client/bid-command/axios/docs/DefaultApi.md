@@ -1,6 +1,6 @@
 # DefaultApi
 
-All URIs are relative to *http://localhost:8080*
+All URIs are relative to *http://localhost:8081*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -9,7 +9,7 @@ All URIs are relative to *http://localhost:8080*
 # **auctionsAuctionIdBidsPost**
 > PlaceBidResponse auctionsAuctionIdBidsPost(placeBidRequest)
 
-Place a new bid for a given auction.   Requires a valid JWT token.   Uses an Idempotency-Key header to ensure retries are safe. 
+Place a new bid for a given auction.   
 
 ### Example
 
@@ -18,18 +18,16 @@ import {
     DefaultApi,
     Configuration,
     PlaceBidRequest
-} from '@kei/bidding-api-client';
+} from '@kei/bidding-command-api-client';
 
 const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
-let auctionId: string; //ID of the auction to bid on. (default to undefined)
-let idempotencyKey: string; //Unique key to prevent duplicate bid submissions (default to undefined)
+let auctionId: string; //ID of the auction to bid on (default to undefined)
 let placeBidRequest: PlaceBidRequest; //
 
 const { status, data } = await apiInstance.auctionsAuctionIdBidsPost(
     auctionId,
-    idempotencyKey,
     placeBidRequest
 );
 ```
@@ -39,8 +37,7 @@ const { status, data } = await apiInstance.auctionsAuctionIdBidsPost(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **placeBidRequest** | **PlaceBidRequest**|  | |
-| **auctionId** | [**string**] | ID of the auction to bid on. | defaults to undefined|
-| **idempotencyKey** | [**string**] | Unique key to prevent duplicate bid submissions | defaults to undefined|
+| **auctionId** | [**string**] | ID of the auction to bid on | defaults to undefined|
 
 
 ### Return type
