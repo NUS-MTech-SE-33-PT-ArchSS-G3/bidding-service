@@ -4,21 +4,21 @@ import (
 	"time"
 )
 
-type AuctionStatus int
+type AuctionStatus string
 
 const (
-	AuctionOpen  AuctionStatus = iota + 1
-	AuctionClose AuctionStatus = iota + 2
+	AuctionOpen  AuctionStatus = "OPEN"
+	AuctionClose AuctionStatus = "CLOSED"
 )
 
 type AuctionMetadata struct {
-	AuctionID     string
-	Status        AuctionStatus
-	EndsAt        time.Time
-	StartingPrice float64 // min starting price
-	CurrentPrice  float64 // last accepted price, 0 if none
-	MinIncrement  float64 // required when >= CurrentPrice
-	Version       int
+	AuctionID     string        `json:"auctionID"`
+	Status        AuctionStatus `json:"status"`
+	EndsAt        time.Time     `json:"endsAt"`
+	StartingPrice float64       `json:"startingPrice"` // min starting price
+	CurrentPrice  float64       `json:"currentPrice"`  // last accepted price, 0 if none
+	MinIncrement  float64       `json:"minIncrement"`  // required when >= CurrentPrice
+	Version       int           `json:"version"`
 }
 
 func (m AuctionMetadata) IsOpen() bool {
