@@ -1,0 +1,11 @@
+**/.git
+**/.idea
+**/.vscode
+**/bin
+**/dist
+**/tmp
+**/log
+**/.env
+**/*.local.json
+**/node_modules
+**/coverage

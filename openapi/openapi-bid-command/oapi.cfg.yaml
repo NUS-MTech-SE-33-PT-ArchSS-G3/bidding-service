@@ -1,8 +1,0 @@
-package: openapi
-output: ../openapi/openapi-bid-command/api.gen.go
-
-generate:
-  - types
-  - gin
-  - client
-  - spec

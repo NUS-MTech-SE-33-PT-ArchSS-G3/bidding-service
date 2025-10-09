@@ -16,7 +16,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { PlaceBidResponse } from '@kei/bidding-command-api-client';
+import { PlaceBidResponse } from '@kei/bid-command-api-client';
 
 const instance: PlaceBidResponse = {
     bidId,

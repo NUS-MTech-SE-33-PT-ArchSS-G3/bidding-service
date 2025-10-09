@@ -18,7 +18,7 @@ import {
     DefaultApi,
     Configuration,
     PlaceBidRequest
-} from '@kei/bidding-command-api-client';
+} from '@kei/bid-command-api-client';
 
 const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);

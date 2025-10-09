@@ -1,0 +1,21 @@
+version: "2"
+sql:
+  - schema:
+      - services/bid-command/sqlc/schema/*.sql
+    queries:
+      - services/bid-command/sqlc/queries/*.sql
+    engine: "postgresql"
+
+    gen:
+      go:
+        package: "sqlc"
+        out: services/bid-command/sqlc
+        sql_package: "database/sql"
+        emit_json_tags: true
+        emit_interface: false
+        # map DECIMAL/NUMERIC to float64 and UUID to string for simplicity
+        overrides:
+          - db_type: "pg_catalog.numeric"
+            go_type: "float64"
+          - db_type: "uuid"
+            go_type: "string"

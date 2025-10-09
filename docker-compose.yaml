@@ -1,4 +1,7 @@
 services:
+  # ---------- Mongo ----------
+  # todo
+
   # ---------- Postgres ----------
   postgres:
     image: postgres:18
@@ -6,13 +9,13 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: bidding
+      POSTGRES_DB: bid_command
     ports:
       - "5432:5432"
     volumes:
       - pg-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d bidding"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bid_command"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -78,12 +81,12 @@ services:
       - KAFKA_CLUSTERS_0_NAME=local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
 
-  # ---------- Bidding Service ----------
-  bidding:
+  # ---------- Bid Command Service ----------
+  bid-command:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: bidding
+      dockerfile: services/bid-command/Dockerfile
+    container_name: bid-command
     depends_on:
       postgres:
         condition: service_healthy
@@ -97,8 +100,8 @@ services:
       - KAFKA_BROKERS=kafka:9092
       - CONFIG_PATH=/app/config/config.json
     volumes:
-      - ./cmd/bidding/config.json:/app/config/config.json:ro
-      - ./cmd/bidding/.env:/app/.env:ro
+      - ./services/bid-command/cmd/config.json:/app/config/config.json:ro
+      - ./services/bid-command/cmd/.env:/app/.env:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/healthz || exit 1"]
       interval: 5s
@@ -116,7 +119,7 @@ services:
     volumes:
       - ./scripts/seed/01_bids.sql:/seed/01_bids.sql:ro
     entrypoint: [ "bash", "-lc",
-                  "psql 'postgres://postgres:postgres@postgres:5432/bidding?sslmode=disable' -v ON_ERROR_STOP=1 -f /seed/01_bids.sql" ]
+                  "psql 'postgres://postgres:postgres@postgres:5432/bid_command?sslmode=disable' -v ON_ERROR_STOP=1 -f /seed/01_bids.sql" ]
 
   seed-redis:
     image: redis:8-alpine
@@ -135,7 +138,7 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
-      bidding:
+      bid-command:
         condition: service_healthy
     environment:
       - KAFKA_BROKERS=kafka:9092

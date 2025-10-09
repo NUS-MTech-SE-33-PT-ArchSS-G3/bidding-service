@@ -84,7 +84,7 @@ func buildPostgresDSN(db *Config, ssl *config.Ssl) (dsn, redacted string) {
 	// base params
 	q := url.Values{}
 
-	// custom params from config (e.g "search_path=public&application_name=bidding")
+	// custom params from config
 	if strings.TrimSpace(db.Params) != "" {
 		for _, kv := range strings.Split(db.Params, "&") {
 			if kv == "" {
