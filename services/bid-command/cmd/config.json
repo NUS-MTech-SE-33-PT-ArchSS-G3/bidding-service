@@ -58,10 +58,7 @@
   },
   "KafkaWriter": {
     "brokers": ["kafka:9092"],
-    "bidsTopic": "bids.placed",
-    "openedTopic": "auction.opened",
-    "closedTopic": "auction.closed",
-    "groupId": "bid-command-meta-sync",
+    "topic": "bids.placed",
     "clientId": "bid-command-service",
     "acks": "all",
     "compression": "snappy"

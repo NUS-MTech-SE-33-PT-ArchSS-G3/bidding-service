@@ -24,7 +24,6 @@ type systemClock struct{}
 func (systemClock) Now() time.Time { return time.Now() }
 
 func initDependencies(db *gorm.DB, redis *redis.Client, w *kafka.Writer, cfg *cfg.Config, log *zap.Logger) *deps {
-
 	sqlDb, err := db.DB()
 	if err != nil {
 		log.Fatal("failed to get sql db from gorm", zap.Error(err))
@@ -33,7 +32,7 @@ func initDependencies(db *gorm.DB, redis *redis.Client, w *kafka.Writer, cfg *cf
 	placeBidService := place_bid.NewService(place_bid.Deps{
 		BidRepo: repo.NewBidRepo(sqlDb, log),
 		Cache:   cache.NewAuctionMetadataCache(redis, log),
-		Pub:     mq.NewBidsPublisher(w, "bids.placed", log),
+		Pub:     mq.NewBidsPublisher(w, cfg.KafkaWriter.Topic, log),
 		Tx:      tx.NewTxManager(sqlDb),
 		Clock:   systemClock{},
 	}, log)

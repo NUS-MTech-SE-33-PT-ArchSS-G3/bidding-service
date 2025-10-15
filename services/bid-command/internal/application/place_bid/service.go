@@ -123,13 +123,19 @@ func (s *Service) Handle(ctx context.Context, cmd Command) (*Result, error) {
 
 	// publish after commit
 	// todo: maybe use outbox pattern if have time
-	_ = s.pub.Publish(ctx, domain.BidPlaced{
+	if err = s.pub.Publish(ctx, domain.BidPlaced{
 		AuctionID: out.AuctionID,
 		BidID:     out.BidID,
 		BidderID:  out.BidderID,
 		Amount:    out.CurrentPrice,
 		At:        out.At,
-	})
+	}); err != nil {
+		s.log.Error("publish bids.placed failed",
+			zap.String("auction_id", out.AuctionID),
+			zap.String("bid_id", out.BidID),
+			zap.Error(err))
+		return nil, fmt.Errorf("publish failed: %w", err)
+	}
 
 	return out, nil
 }

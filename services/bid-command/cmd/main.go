@@ -68,6 +68,7 @@ func main() {
 	defer func() { _ = redisClient.Close() }()
 
 	// Kafka
+	// projector start
 	openedReader := kafkaInfra.NewReader(kafkaInfra.ReaderConfig{
 		Brokers: cfg.KafkaWriter.Brokers,
 		Topic:   "auction.opened",
@@ -97,15 +98,16 @@ func main() {
 			log.Error("auction meta subscriber stopped", zap.Error(err))
 		}
 	}()
+	// todo : move above to auction projector
 
 	writer := kafkaInfra.NewWriter(kafkaInfra.WriterConfig{
 		Brokers:  cfg.KafkaWriter.Brokers,
-		Topic:    "bids.placed",
-		ClientID: "bid-command-service",
+		Topic:    cfg.KafkaWriter.Topic,
+		ClientID: cfg.KafkaWriter.ClientID,
 		Acks:     kafka.RequireAll,
 		// Compression: kafka.Snappy,
 		// Balancer:    &kafka.Hash{},
-	})
+	}, log)
 	defer writer.Close()
 
 	//// Create and start server
