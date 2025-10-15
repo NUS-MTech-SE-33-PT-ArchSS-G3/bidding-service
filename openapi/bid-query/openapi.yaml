@@ -1,0 +1,273 @@
+openapi: 3.0.3
+info:
+  title: Bid Query Service API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8083
+
+paths:
+  /auctions/{auctionId}/bids:
+    get:
+      summary: List bids for an auction
+      description: >
+        Returns bids for a given auction, newest first by default, using cursor pagination.
+        `cursor` is from the previous page's (`nextCursor`).
+      parameters:
+        - in: path
+          name: auctionId
+          required: true
+          schema: { type: string }
+          description: The auction ID
+        - in: query
+          name: cursor
+          schema: { type: string, nullable: true }
+          description: Cursor from the previous page, omit for the first page
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+          description: Page size. Max 200.
+        - in: query
+          name: direction
+          schema:
+            type: string
+            enum: [desc, asc]
+            default: desc
+          description: Sort in descending or ascending order.
+      responses:
+        '200':
+          description: A page of bids.
+          headers:
+            X-Next-Cursor:
+              description: Same value as `nextCursor` in the body for convenience
+              schema: { type: string, nullable: true }
+            X-Request-Id:
+              description: Echoes back the request ID, if not provided by the client, server generates one.
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBidsResponse'
+        '400':
+          description: Bad request (invalid cursor, params, etc.)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/ProblemDetails' }
+        '404':
+          description: Auction not found
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/ProblemDetails' }
+
+#  /ws/prices:
+#    get:
+#      summary: WebSocket upgrade for live price updates
+#      description: >
+#        Upgrades to WebSocket. After the upgrade, exchange JSON messages:
+#        clients send `subscribe`/`unsubscribe` commands; server pushes `price`
+#        events. Optional `ping`/`pong` keepalive.
+#      parameters:
+#        - in: query
+#          name: auth
+#          required: false
+#          description: Optional bearer token if you use query auth for demo; normally use the `Authorization` header.
+#          schema: { type: string }
+#      responses:
+#        "101":
+#          description: Switching Protocols (WebSocket upgrade)
+#          headers:
+#            Upgrade:
+#              schema: { type: string, example: websocket }
+#            Connection:
+#              schema: { type: string, example: Upgrade }
+#        "400":
+#          description: Bad request (e.g., invalid query)
+#          content:
+#            application/problem+json:
+#              schema: { $ref: "#/components/schemas/ProblemDetails" }
+#        "401":
+#          description: Unauthorized
+#          content:
+#            application/problem+json:
+#              schema: { $ref: "#/components/schemas/ProblemDetails" }
+#        "426":
+#          description: Upgrade Required
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Bid:
+      type: object
+      required: [bidId, auctionId, bidderId, amount, at, seq]
+      properties:
+        bidId:       { type: string, example: b_001 }
+        auctionId:   { type: string, example: a_123 }
+        bidderId:    { type: string, example: user_123 }
+        amount:      { type: number, format: double, example: 101.50 }
+        at:          { type: string, format: date-time, example: "2025-09-01T10:22:33Z" }
+
+    ListBidsResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Bid' }
+        nextCursor:
+          type: string
+          nullable: true
+          description: Opaque token for the next page, or null if no more results.
+        hasMore:
+          type: boolean
+          example: true
+
+    # ---------- Client > Server ----------
+
+    WSClientMessage:
+      oneOf:
+        - $ref: "#/components/schemas/Subscribe"
+        - $ref: "#/components/schemas/Unsubscribe"
+        - $ref: "#/components/schemas/Ping"
+      discriminator:
+        propertyName: type
+        mapping:
+          subscribe: "#/components/schemas/Subscribe"
+          unsubscribe: "#/components/schemas/Unsubscribe"
+          ping: "#/components/schemas/Ping"
+
+    Subscribe:
+      type: object
+      required: [type, ids]
+      properties:
+        type:
+          type: string
+          enum: [subscribe]
+        ids:
+          type: array
+          description: Auction IDs to (add to) subscription. Max 200.
+          maxItems: 200
+          items: { type: string }
+        resumeFrom:
+          type: object
+          additionalProperties:
+            type: string
+          description: Map of auctionId -> resumeToken (last seen version/seq).
+
+    Unsubscribe:
+      type: object
+      required: [type, ids]
+      properties:
+        type:
+          type: string
+          enum: [unsubscribe]
+        ids:
+          type: array
+          items: { type: string }
+
+    Ping:
+      type: object
+      required: [type, ts]
+      properties:
+        type: { type: string, enum: [ping] }
+        ts: { type: string, format: date-time }
+
+    # ---------- Server > Client ----------
+    WSServerMessage:
+      oneOf:
+        - $ref: "#/components/schemas/PriceEvent"
+        - $ref: "#/components/schemas/Ack"
+        - $ref: "#/components/schemas/ErrorFrame"
+        - $ref: "#/components/schemas/Pong"
+      discriminator:
+        propertyName: type
+        mapping:
+          price: "#/components/schemas/PriceEvent"
+          ack: "#/components/schemas/Ack"
+          error: "#/components/schemas/ErrorFrame"
+          pong: "#/components/schemas/Pong"
+
+    PriceEvent:
+      type: object
+      required: [type, auctionId, currentPrice, version, at]
+      properties:
+        type: { type: string, enum: [price] }
+        auctionId: { type: string }
+        currentPrice: { type: number }
+        minNextBid: { type: number }
+        version:
+          type: integer
+          description: Monotonic version/seq for resume.
+        resumeToken:
+          type: string
+          description: Opaque token (e.g., same as version or compound).
+        at: { type: string, format: date-time }
+
+    Ack:
+      type: object
+      required: [type, op, ids]
+      properties:
+        type: { type: string, enum: [ack] }
+        op: { type: string, enum: [subscribe, unsubscribe] }
+        ids:
+          type: array
+          items: { type: string }
+
+    ErrorFrame:
+      type: object
+      required: [type, code, message]
+      properties:
+        type: { type: string, enum: [error] }
+        code:
+          type: string
+          enum: [invalid_payload, too_many_ids, unauthorized, internal]
+        message: { type: string }
+        details:
+          type: object
+          additionalProperties: true
+
+    Pong:
+      type: object
+      required: [type, ts]
+      properties:
+        type: { type: string, enum: [pong] }
+        ts: { type: string, format: date-time }
+
+    # [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) Problem Details for HTTP APIs
+    ProblemDetails:
+      type: object
+      required:
+        - type
+        - title
+        - status
+      properties:
+        type:
+          type: string
+          format: uri
+          description: A URI reference [RFC3986] that identifies the problem type
+          example: https://biddergod.com/problems/below-min-increment
+        title:
+          type: string
+          description: A short, human-readable summary of the problem type
+          example: Bid rejected below minimum increment
+        status:
+          type: integer
+          description: The HTTP status code generated by the origin server for this occurrence of the problem
+          example: 4xx
+        detail:
+          type: string
+          description: A human-readable explanation specific to this occurrence of the problem
+          example: Invalid bid amount, 100.0. Minimum next bid is 102.5
+        instance:
+          type: string
+          description: A URI reference that identifies the specific occurrence of the problem
+          format: uri
+          example: /auctions/a_456/bids/b_789

@@ -1,0 +1,8 @@
+package: openapi
+output: ../services/bid-query/openapi/api.gen.go
+
+generate:
+  - types
+  - gin
+  - client
+  - spec
