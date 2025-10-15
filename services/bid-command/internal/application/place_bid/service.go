@@ -3,6 +3,7 @@ package place_bid
 import (
 	"context"
 	"fmt"
+	"kei-services/pkg/middleware"
 	"kei-services/services/bid-command/internal/application"
 	"kei-services/services/bid-command/internal/domain"
 
@@ -41,15 +42,20 @@ func NewService(d Deps, log *zap.Logger) *Service {
 
 // Handle processes the PlaceBid command
 func (s *Service) Handle(ctx context.Context, cmd Command) (*Result, error) {
-	s.log.Info("placing bid", zap.String("auction_id", cmd.AuctionID), zap.String("bidder_id", cmd.BidderID), zap.Float64("amount", cmd.Amount))
+	log := middleware.LoggerFrom(ctx, s.log)
+	log.Info("placing bid",
+		zap.String("auction_id", cmd.AuctionID),
+		zap.String("bidder_id", cmd.BidderID),
+		zap.Float64("amount", cmd.Amount))
+
 	// fast pre-check using cache
 	auction, err := s.cache.Get(ctx, cmd.AuctionID)
 	if err != nil {
-		s.log.Warn("cache miss or error", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
+		log.Warn("cache miss or error", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
 		return nil, fmt.Errorf("load auction meta: %w", err)
 	}
 	if err = domain.ValidateBid(auction, cmd.Amount, nil); err != nil {
-		s.log.Warn("validate bid failed", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
+		log.Warn("validate bid failed", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
 		return nil, err
 	}
 
@@ -61,7 +67,7 @@ func (s *Service) Handle(ctx context.Context, cmd Command) (*Result, error) {
 		// get latest bid with row lock to serialize concurrent bids
 		latest, err := s.bidRepo.LatestForUpdate(ctx, cmd.AuctionID)
 		if err != nil {
-			s.log.Warn("get latest for update", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
+			log.Warn("get latest for update", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
 			return err
 		}
 
@@ -82,7 +88,7 @@ func (s *Service) Handle(ctx context.Context, cmd Command) (*Result, error) {
 		// persist the bid
 		id, seq, err := s.bidRepo.Insert(ctx, bid)
 		if err != nil {
-			s.log.Warn("insert bid failed", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
+			log.Warn("insert bid failed", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
 			return err
 		}
 		if id != "" {
@@ -117,7 +123,7 @@ func (s *Service) Handle(ctx context.Context, cmd Command) (*Result, error) {
 		return nil
 	})
 	if err != nil {
-		s.log.Warn("place bid tx failed", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
+		log.Error("place bid tx failed", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
 		return nil, err
 	}
 
@@ -130,7 +136,7 @@ func (s *Service) Handle(ctx context.Context, cmd Command) (*Result, error) {
 		Amount:    out.CurrentPrice,
 		At:        out.At,
 	}); err != nil {
-		s.log.Error("publish bids.placed failed",
+		log.Error("publish bids.placed failed",
 			zap.String("auction_id", out.AuctionID),
 			zap.String("bid_id", out.BidID),
 			zap.Error(err))

@@ -3,6 +3,7 @@ package http
 import (
 	"errors"
 	"fmt"
+	"kei-services/pkg/middleware"
 	"kei-services/services/bid-command/internal/application/place_bid"
 	"kei-services/services/bid-command/internal/domain"
 	"kei-services/services/bid-command/openapi"
@@ -23,10 +24,13 @@ func NewPlaceBidController(log *zap.Logger, svc place_bid.IService) *PlaceBidCon
 
 var _ openapi.ServerInterface = (*PlaceBidController)(nil)
 
-// todo: add logging
 func (h *PlaceBidController) PostAuctionsAuctionIdBids(c *gin.Context, auctionId string) {
+	log := middleware.LoggerFrom(c.Request.Context(), h.log)
+	log.Info("post bids: request received", zap.String("auctionId", auctionId), zap.Any("params", c.Request.Body))
+
 	var req openapi.PlaceBidRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Warn("failed to bind", zap.Error(err))
 		writeProblem(c, http.StatusBadRequest,
 			"https://example.com/problems/invalid-request",
 			"Invalid request body",
@@ -60,7 +64,7 @@ func (h *PlaceBidController) PostAuctionsAuctionIdBids(c *gin.Context, auctionId
 		Amount:    req.Amount,
 	})
 	if err != nil {
-		h.handleError(c, err)
+		h.handleError(c, err, log)
 		return
 	}
 
@@ -75,14 +79,22 @@ func (h *PlaceBidController) PostAuctionsAuctionIdBids(c *gin.Context, auctionId
 		At:           res.At,
 	}
 
+	log.Info("post bids: request successful",
+		zap.String("auctionId", auctionId),
+		zap.String("bidId", res.BidID),
+		zap.String("bidderId", res.BidderID),
+		zap.Float64("amount", req.Amount),
+		zap.Float64("currentPrice", res.CurrentPrice),
+		zap.Float64("minNextBid", res.MinNextBid))
+
 	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusCreated, out)
 }
 
-// todo: improve error handling and logging
-func (h *PlaceBidController) handleError(c *gin.Context, err error) {
+func (h *PlaceBidController) handleError(c *gin.Context, err error, log *zap.Logger) {
 	switch {
 	case errors.Is(err, place_bid.ErrUnauthorized):
+		log.Warn("unauthorized", zap.Error(err))
 		writeProblem(c, http.StatusUnauthorized,
 			"https://example.com/problems/unauthorized",
 			"Unauthorized",
@@ -91,18 +103,21 @@ func (h *PlaceBidController) handleError(c *gin.Context, err error) {
 
 	// Domain/business
 	case errors.Is(err, domain.ErrAuctionClosed):
+		log.Warn("auction closed", zap.Error(err))
 		writeProblem(c, http.StatusUnprocessableEntity,
 			"https://example.com/problems/auction-closed",
 			"Auction closed",
 			"No further bids are accepted for this auction",
 		)
 	case errors.Is(err, domain.ErrBelowMinIncrement):
+		log.Warn("below min increment", zap.Error(err))
 		writeProblem(c, http.StatusUnprocessableEntity,
 			"https://example.com/problems/below-min-increment",
 			"Bid rejected: below minimum increment",
 			err.Error(), // e.g., "next valid bid must be >= 102.5"
 		)
 	case errors.Is(err, domain.ErrAuctionNotFound):
+		log.Warn("auction not found", zap.Error(err))
 		writeProblem(c, http.StatusUnprocessableEntity,
 			"https://example.com/problems/auction-not-found",
 			"Auction not found",
@@ -111,6 +126,7 @@ func (h *PlaceBidController) handleError(c *gin.Context, err error) {
 
 	// conflicts
 	case errors.Is(err, place_bid.ErrVersionConflict):
+		log.Warn("version conflict", zap.Error(err))
 		writeProblem(c, http.StatusConflict,
 			"https://example.com/problems/version-conflict",
 			"Conflict",
@@ -119,7 +135,7 @@ func (h *PlaceBidController) handleError(c *gin.Context, err error) {
 
 	// fallback
 	default:
-		h.log.Error("unhandled error in PostAuctionsAuctionIdBids", zap.Error(err))
+		log.Error("unhandled error in PostAuctionsAuctionIdBids", zap.Error(err))
 		writeProblem(c, http.StatusInternalServerError,
 			"https://example.com/problems/internal",
 			"Internal Server Error",
