@@ -16,7 +16,7 @@
   },
   "Cors": {
     "isEnabled": true,
-    "allowOrigins": ["http://localhost:8080"],
+    "allowOrigins": ["http://localhost:8080", "http://localhost:8081", "http://localhost:8083"],
     "allowMethods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     "allowHeaders": ["Authorization", "Content-Type", "X-Requested-With"],
     "exposeHeaders": ["ETag"],
@@ -56,7 +56,7 @@
     "poolSize": 10,
     "password": ""
   },
-  "kafka": {
+  "KafkaWriter": {
     "brokers": ["kafka:9092"],
     "bidsTopic": "bids.placed",
     "openedTopic": "auction.opened",

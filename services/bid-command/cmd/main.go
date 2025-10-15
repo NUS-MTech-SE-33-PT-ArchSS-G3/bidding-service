@@ -17,7 +17,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -69,27 +68,8 @@ func main() {
 	defer func() { _ = redisClient.Close() }()
 
 	// Kafka
-	brokers := []string{"localhost:9092"}
-	if host := os.Getenv("KAFKA_BROKERS"); host != "" {
-		// allow comma-separated
-		brokers = splitCSV(host)
-	}
-	//openedReader := kafka.NewReader(kafka.ReaderConfig{
-	//	Brokers:  brokers,
-	//	Topic:    "auction.opened",
-	//	GroupID:  "bidding-meta-sync",
-	//	MinBytes: 1, MaxBytes: 10 << 20,
-	//})
-	//defer openedReader.Close()
-	//
-	//closedReader := kafka.NewReader(kafka.ReaderConfig{
-	//	Brokers: brokers,
-	//	Topic:   "auction.closed",
-	//	GroupID: "bid-command-meta-sync",
-	//})
-	//defer closedReader.Close()
 	openedReader := kafkaInfra.NewReader(kafkaInfra.ReaderConfig{
-		Brokers: brokers,
+		Brokers: cfg.KafkaWriter.Brokers,
 		Topic:   "auction.opened",
 		GroupID: "bid-command-meta-sync",
 		Offset:  kafkaInfra.OffsetLast, // or OffsetFirst for fresh groups
@@ -97,7 +77,7 @@ func main() {
 	defer openedReader.Close()
 
 	closedReader := kafkaInfra.NewReader(kafkaInfra.ReaderConfig{
-		Brokers: brokers,
+		Brokers: cfg.KafkaWriter.Brokers,
 		Topic:   "auction.closed",
 		GroupID: "bid-command-meta-sync",
 		Offset:  kafkaInfra.OffsetLast,
@@ -118,14 +98,8 @@ func main() {
 		}
 	}()
 
-	// Kafka writer for publishing BidPlaced (if you have a helper, use that)
-	//writer := &kafka.Writer{
-	//	Addr:     kafka.TCP(brokers...),
-	//	Topic:    "bids.placed",
-	//	Balancer: &kafka.Hash{},
-	//}
 	writer := kafkaInfra.NewWriter(kafkaInfra.WriterConfig{
-		Brokers:  brokers,
+		Brokers:  cfg.KafkaWriter.Brokers,
 		Topic:    "bids.placed",
 		ClientID: "bid-command-service",
 		Acks:     kafka.RequireAll,
@@ -162,15 +136,4 @@ func main() {
 	defer cancel()
 	_ = server.Shutdown(shutdownCtx, s, log)
 
-}
-
-func splitCSV(s string) []string {
-	parts := strings.FieldsFunc(s, func(r rune) bool { return r == ',' || r == ';' || r == ' ' })
-	out := make([]string, 0, len(parts))
-	for _, p := range parts {
-		if p != "" {
-			out = append(out, p)
-		}
-	}
-	return out
 }
