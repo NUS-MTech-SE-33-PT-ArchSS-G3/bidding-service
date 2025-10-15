@@ -1,5 +1,5 @@
 GO ?= go
-CMD_DIR := cmd
+CMD_DIR := services
 BIN_DIR := bin
 
 # space separated list
@@ -14,17 +14,13 @@ build:
 	mkdir -p $(BIN_DIR)
 	@for b in $(BINARIES); do \
 		echo "Building $$b..."; \
-		cd $(CMD_DIR)/$$b && $(GO) build -o ../../$(BIN_DIR)/$$b; \
+		cd $(CMD_DIR)/$$b/cmd && $(GO) build -o ../../$(BIN_DIR)/$$b; \
 		cd - > /dev/null; \
 	done
 
 run:
 	go mod tidy
-	cd $(CMD_DIR)/$(CMD) && $(GO) run . -config ../../cmd/$(CMD)/config.json
-
-runsmx:
-	go mod tidy
-	cd $(CMD_DIR)/$(CMD) && $(GO) run . -config ../../cmd/$(CMD)/configsmx.json
+	cd $(CMD_DIR)/$(CMD)/cmd && $(GO) run . -config ../../$(CMD)/cmd/config.json
 
 clean:
 	rm -rf $(BIN_DIR)

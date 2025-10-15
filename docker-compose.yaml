@@ -1,6 +1,20 @@
 services:
   # ---------- Mongo ----------
-  # todo
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --username root --password root --authenticationDatabase admin --eval 'db.runCommand({ ping: 1 })' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
 
   # ---------- Postgres ----------
   postgres:
@@ -97,7 +111,6 @@ services:
     ports:
       - "8081:8080"  # map to 8081 to avoid conflict with kafka-ui
     environment:
-      - KAFKA_BROKERS=kafka:9092
       - CONFIG_PATH=/app/config/config.json
     volumes:
       - ./services/bid-command/cmd/config.json:/app/config/config.json:ro
@@ -109,6 +122,32 @@ services:
       retries: 30
       start_period: 10s
 
+  # ---------- Bid Query Service ----------
+  bid-query:
+    build:
+      context: .
+      dockerfile: services/bid-query/Dockerfile
+    container_name: bid-query
+    depends_on:
+      kafka:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8083:8080"
+    environment:
+      - CONFIG_PATH=/app/config/config.json
+    volumes:
+      - ./services/bid-query/cmd/config.json:/app/config/config.json:ro
+      - ./services/bid-query/cmd/.env:/app/.env:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/healthz || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
 
 ################################################## Seed Data TODO: REMOVE IN PROD
   seed-db:
@@ -150,3 +189,4 @@ volumes:
   pg-data:
   redis-data:
   kafka-data:
+  mongo-data:
