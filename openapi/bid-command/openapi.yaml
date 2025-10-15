@@ -34,6 +34,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PlaceBidResponse"
+                headers:
+                  X-Request-Id:
+                    description: Echoes back the request ID, if not provided by the client, server generates one.
+                    schema: { type: string }
         '400':
           description: Invalid request (e.g., missing fields)
           content:

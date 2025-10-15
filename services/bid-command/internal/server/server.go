@@ -43,8 +43,9 @@ func New(db *gorm.DB, redis *redis.Client, w *kafka.Writer, cfg *cfg.Config, log
 	r.Use(
 		ginzap.Ginzap(log, time.RFC3339, true),
 		ginzap.RecoveryWithZap(log, true),
-		// todo: uuid propagation
 
+		middleware.RequestID(),
+		middleware.WithRequestLogger(log),
 		middleware.RequestLogger(log),
 		middleware.Cors(cfg.Cors, log),
 		middleware.MaxBody(10<<20), // 10 mb
