@@ -3,7 +3,7 @@ CMD_DIR := services
 BIN_DIR := bin
 
 # space separated list
-BINARIES := bid-command bid-query
+BINARIES := bid-command bid-query auction-projector
 
 .PHONY: all build run clean generate generate-client check-generate
 

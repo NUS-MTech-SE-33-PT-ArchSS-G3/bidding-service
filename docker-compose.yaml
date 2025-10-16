@@ -149,6 +149,25 @@ services:
       retries: 30
       start_period: 10s
 
+  # ---------- Auction Projector Service ----------
+  auction-projector:
+    build:
+      context: .
+      dockerfile: services/auction-projector/Dockerfile
+    container_name: auction-projector
+    depends_on:
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8085:8080"
+    environment:
+      - CONFIG_PATH=/app/config/config.json
+    volumes:
+      - ./services/auction-projector/cmd/config.json:/app/config/config.json:ro
+      - ./services/auction-projector/cmd/.env:/app/.env:ro
+
 ################################################## Seed Data TODO: REMOVE IN PROD
   seed-db:
     image: postgres:18

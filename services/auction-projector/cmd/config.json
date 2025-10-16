@@ -1,0 +1,34 @@
+{
+  "app": {
+    "name": "auction projector service",
+    "environment": "development",
+    "version": "1.0.0"
+  },
+  "network": {
+    "Port": 8085,
+    "IsLocalHost": false,
+    "ssl": {
+      "enabled": false,
+      "certFile": "",
+      "keyFile": "",
+      "caFile": ""
+    }
+  },
+  "Logger": {
+    "level": "debug",
+    "format": "console",
+    "output": "stdout",
+    "filePath": "./log/auction-projector.log"
+  },
+  "redis": {
+    "Addr": "redis",
+    "port": 6379,
+    "poolSize": 10,
+    "password": ""
+  },
+  "KafkaReader": {
+    "brokers": ["kafka:9092"],
+    "groupTopics": ["auction.opened", "auction.closed"],
+    "groupId": "auction-projector-v1"
+  }
+}
