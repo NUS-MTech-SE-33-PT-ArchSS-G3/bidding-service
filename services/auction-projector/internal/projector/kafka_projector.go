@@ -50,10 +50,10 @@ func (p *Projector) Run(ctx context.Context) error {
 		}
 	}()
 
-	if err := p.waitForAssignment(ctx, 30*time.Second); err != nil {
+	if err := p.waitForAssignment(ctx, 600*time.Second); err != nil {
 		return fmt.Errorf("no partition assignment, %w", err)
 	} else {
-		p.log.Info("kafka: group assigned", zap.String("partition", p.reader.Stats().Partition))
+		p.log.Info("partitions assigned")
 	}
 
 	for {
@@ -84,17 +84,63 @@ func (p *Projector) waitForAssignment(ctx context.Context, maxWait time.Duration
 	deadline := time.Now().Add(maxWait)
 	for {
 		s := p.reader.Stats()
-		if s.Partition != "" && s.Partition != "-1" {
-			// no partition assigned yet
+		// Group readers: first successful fetch/message is the best signal
+		if s.Fetches > 0 || s.Messages > 0 {
 			return nil
 		}
 		if time.Now().After(deadline) {
-			return errors.New("no group assignment within deadline")
+			return errors.New("still waiting for group assignment")
 		}
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(250 * time.Millisecond):
 		}
 	}
+}
+
+func EnsureTopics(ctx context.Context, brokers []string, topics []string, numPartitions, replicationFactor int) error {
+	if len(brokers) == 0 {
+		return fmt.Errorf("no brokers provided")
+	}
+	d := &kafka.Dialer{Timeout: 5 * time.Second, DualStack: true}
+	conn, err := d.DialContext(ctx, "tcp", brokers[0])
+	if err != nil {
+		return fmt.Errorf("dial broker: %w", err)
+	}
+	defer conn.Close()
+
+	existing := map[string]bool{}
+	// check if already exists
+	parts, err := conn.ReadPartitions()
+	if err != nil {
+		return fmt.Errorf("read partitions: %w", err)
+	}
+	for _, p := range parts {
+		existing[p.Topic] = true
+	}
+
+	// create topics if doesnt exist
+	var toCreate []kafka.TopicConfig
+	for _, t := range topics {
+		if t == "" {
+			continue
+		}
+		if existing[t] {
+			continue
+		}
+		toCreate = append(toCreate, kafka.TopicConfig{
+			Topic:             t,
+			NumPartitions:     numPartitions,
+			ReplicationFactor: replicationFactor,
+		})
+	}
+
+	if len(toCreate) == 0 {
+		return nil
+	}
+	if err = conn.CreateTopics(toCreate...); err != nil {
+		return fmt.Errorf("create topics: %w", err)
+	}
+	return nil
 }

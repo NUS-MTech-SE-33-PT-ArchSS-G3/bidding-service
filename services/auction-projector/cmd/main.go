@@ -9,9 +9,8 @@ import (
 	"kei-services/pkg/logger"
 	"kei-services/services/auction-projector/internal/cfg"
 	"kei-services/services/auction-projector/internal/events"
-	"kei-services/services/auction-projector/internal/infrastructure/cache"
 	redisProjection "kei-services/services/auction-projector/internal/projections/redis"
-	projector2 "kei-services/services/auction-projector/internal/projector"
+	"kei-services/services/auction-projector/internal/projector"
 	"os"
 	"os/signal"
 	"syscall"
@@ -31,7 +30,7 @@ func main() {
 
 	log := logger.Init(cfg.Logger, cfg.App)
 	if log == nil {
-		panic("failed to initialize logger")
+		panic("initialize logger")
 	}
 	defer func() { _ = log.Sync() }()
 
@@ -44,27 +43,19 @@ func main() {
 	// redis
 	redisClient, err := redisInfra.Client(cfg.Redis, log)
 	if err != nil {
-		log.Fatal("Failed to connect to redis", zap.Error(err))
+		log.Fatal("connect to redis", zap.Error(err))
 	}
 	defer func() { _ = redisClient.Close() }()
 
 	// setup kafka reader
 	// ensure topics
-	if len(cfg.KafkaReader.GroupTopics) > 0 {
-		for _, t := range cfg.KafkaReader.GroupTopics {
-			if err = cache.EnsureTopics(ctx, cfg.KafkaReader.Brokers, t, 1, 1); err != nil {
-				log.Warn("ensure topic", zap.String("topic", t), zap.Error(err))
-			}
-		}
-	} else if cfg.KafkaReader.Topic != "" {
-		if err = cache.EnsureTopics(ctx, cfg.KafkaReader.Brokers, cfg.KafkaReader.Topic, 1, 1); err != nil {
-			log.Warn("ensure topic", zap.String("topic", cfg.KafkaReader.Topic), zap.Error(err))
-		}
+	if err = projector.EnsureTopics(ctx, cfg.KafkaReader.Brokers, cfg.KafkaReader.GroupTopics, 1, 1); err != nil {
+		log.Warn("ensure topics", zap.Strings("topics", cfg.KafkaReader.GroupTopics), zap.Error(err))
 	}
 
 	auctionReader, err := kafkaInfra.NewReader(cfg.KafkaReader)
 	if err != nil {
-		log.Fatal("bid placed kafka reader", zap.Error(err))
+		log.Fatal("kafka reader", zap.Error(err))
 	}
 	defer auctionReader.Close()
 
@@ -80,12 +71,12 @@ func main() {
 	cache := redisProjection.NewAuctionMetadataProjection(redisClient, log)
 	redisProjection := redisProjection.NewProjection(cache, log, 15*time.Minute)
 
-	router := &projector2.Router{
+	router := &projector.Router{
 		Codec:    &events.Codec{},
 		Handlers: redisProjection,
 	}
 
-	p := projector2.New(auctionReader, router, log)
+	p := projector.New(auctionReader, router, log)
 
 	// run projector
 	go func() {

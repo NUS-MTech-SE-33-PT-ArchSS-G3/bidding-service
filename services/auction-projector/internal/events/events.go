@@ -12,7 +12,6 @@ type AuctionOpened struct {
 	EndsAt        time.Time `json:"endsAt"`
 	StartingPrice float64   `json:"startingPrice"`
 	MinIncrement  float64   `json:"minIncrement"`
-	Currency      string    `json:"currency,omitempty"`
 	Version       int       `json:"version"`
 }
 
