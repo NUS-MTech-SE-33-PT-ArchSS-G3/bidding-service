@@ -2,9 +2,10 @@ package kafka
 
 import (
 	"crypto/tls"
+	"errors"
 	"time"
 
-	"github.com/segmentio/kafka-go"
+	segmentKafka "github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl/plain"
 )
 
@@ -12,16 +13,18 @@ import (
 type OffsetMode string
 
 const (
-	OffsetLast  OffsetMode = "last"  // default: start at the end
+	OffsetLast  OffsetMode = "last"  // default start at end
 	OffsetFirst OffsetMode = "first" // start from earliest
 )
 
 type ReaderConfig struct {
-	Brokers []string
-	Topic   string
+	Brokers     []string
+	Topic       string
+	GroupTopics []string
+
 	GroupID string
 
-	// Optional tuning. Sensible defaults applied if zero.
+	// optional tuning
 	MinBytes          int           // default: 1
 	MaxBytes          int           // default: 10 << 20
 	MaxWait           time.Duration // default: 250ms
@@ -31,10 +34,8 @@ type ReaderConfig struct {
 	RebalanceTimeout  time.Duration // default: 0 (use kafka-go default)
 	ReadLagInterval   time.Duration // default: -1 (disabled)
 
-	// Where to start for a *new* consumer group (existing offsets are respected)
-	Offset OffsetMode // default: OffsetLast
+	Offset OffsetMode // default OffsetLast
 
-	// Security (optional)
 	TLS       *tls.Config
 	SASLPlain *struct {
 		Username string
@@ -42,11 +43,27 @@ type ReaderConfig struct {
 	}
 }
 
-func NewReader(cfg ReaderConfig) *kafka.Reader {
-	rc := kafka.ReaderConfig{
+func NewReader(cfg *ReaderConfig) (*segmentKafka.Reader, error) {
+	if cfg == nil {
+		return nil, errors.New("nil reader config")
+	}
+	if cfg.GroupID == "" {
+		return nil, errors.New("GroupID is required for group readers")
+	}
+
+	// validate single-topic vs multi-topic
+	single := cfg.Topic != ""
+	multi := len(cfg.GroupTopics) > 0
+	switch {
+	case !single && !multi:
+		return nil, errors.New("must set either Topic or GroupTopics")
+	case single && multi:
+		return nil, errors.New("cannot set both Topic and GroupTopics")
+	}
+
+	rc := segmentKafka.ReaderConfig{
 		Brokers:           cfg.Brokers,
 		GroupID:           cfg.GroupID,
-		Topic:             cfg.Topic,
 		MinBytes:          defaultInt(cfg.MinBytes, 1),
 		MaxBytes:          defaultInt(cfg.MaxBytes, 10<<20),
 		MaxWait:           defaultDur(cfg.MaxWait, 250*time.Millisecond),
@@ -57,9 +74,14 @@ func NewReader(cfg ReaderConfig) *kafka.Reader {
 		StartOffset:       toStartOffset(cfg.Offset),
 	}
 
-	// Build a Dialer if TLS/SASL is configured.
+	if single {
+		rc.Topic = cfg.Topic
+	} else {
+		rc.GroupTopics = append([]string(nil), cfg.GroupTopics...)
+	}
+
 	if cfg.TLS != nil || cfg.SASLPlain != nil {
-		dialer := &kafka.Dialer{
+		dialer := &segmentKafka.Dialer{
 			Timeout:   10 * time.Second,
 			DualStack: true,
 			TLS:       cfg.TLS,
@@ -73,7 +95,12 @@ func NewReader(cfg ReaderConfig) *kafka.Reader {
 		rc.Dialer = dialer
 	}
 
-	return kafka.NewReader(rc)
+	r := segmentKafka.NewReader(rc)
+
+	// todo: add metrics hook
+	// todo: figure out how to log from reader
+
+	return r, nil
 }
 
 func defaultInt(v, def int) int {
@@ -93,10 +120,10 @@ func defaultDur(v, def time.Duration) time.Duration {
 func toStartOffset(m OffsetMode) int64 {
 	switch m {
 	case OffsetFirst:
-		return kafka.FirstOffset
+		return segmentKafka.FirstOffset
 	case OffsetLast:
 		fallthrough
 	default:
-		return kafka.LastOffset
+		return segmentKafka.LastOffset
 	}
 }

@@ -35,7 +35,7 @@ func main() {
 
 	log := logger.Init(cfg.Logger, cfg.App)
 	if log == nil {
-		panic("failed to initialize logger")
+		panic("initialize logger")
 	}
 	defer func() { _ = log.Sync() }()
 
@@ -45,40 +45,62 @@ func main() {
 	// mongo
 	mc, err := mongoInfra.NewClient(cfg.Mongo, log)
 	if err != nil {
-		log.Fatal("Failed to connect to database", zap.Error(err))
+		log.Fatal("mongo client", zap.Error(err))
 	}
 	defer func() {
 		if err := mc.Disconnect(context.Background()); err != nil {
-			log.Error("failed to disconnect mongo client", zap.Error(err))
+			log.Error("disconnect mongo client", zap.Error(err))
 		}
 	}()
 
 	// Redis // todo: use it
 	redisClient, err := redis.Client(cfg.Redis, log)
 	if err != nil {
-		log.Fatal("Failed to connect to redis", zap.Error(err))
+		log.Fatal("redis new client", zap.Error(err))
 	}
 	defer func() { _ = redisClient.Close() }()
 
 	// projector start
 	// Kafka for projector to read model (todo: move to a projector service, should be in the same consumer group)
-	bidPlacedReader := kafkaInfra.NewReader(kafkaInfra.ReaderConfig{
-		Brokers: cfg.KafkaReader.Brokers,
-		Topic:   cfg.KafkaReader.Topic,
-		GroupID: cfg.KafkaReader.GroupID,
-		Offset:  kafkaInfra.OffsetLast,
-	})
+	ctx := context.Background()
+	if err := mq.EnsureTopic(ctx, cfg.KafkaReader.Brokers, cfg.KafkaReader.Topic, 1, 1); err != nil {
+		log.Warn("kafka ensure topic failed", zap.Error(err))
+	}
+
+	bidPlacedReader, err := kafkaInfra.NewReader(cfg.KafkaReader)
+	if err != nil {
+		log.Fatal("bid placed kafka reader", zap.Error(err))
+	}
 	defer bidPlacedReader.Close()
+	log.Info("kafka reader configured",
+		zap.Strings("brokers", cfg.KafkaReader.Brokers),
+		zap.String("topic", cfg.KafkaReader.Topic),
+		zap.Strings("groupTopics", cfg.KafkaReader.GroupTopics),
+		zap.String("groupID", cfg.KafkaReader.GroupID),
+		zap.String("startOffset", string(cfg.KafkaReader.Offset)),
+	)
 
 	proj := mq.NewBidPlacedProjector(bidPlacedReader, mc.DB, 100, log)
 
 	bg, stopBG := context.WithCancel(context.Background())
 	go func() {
 		if err := proj.Run(bg); err != nil {
-			log.Error("bid placed subscriber stopped", zap.Error(err))
+			log.Error("bids.placed subscriber stopped", zap.Error(err))
 		}
 	}()
 	// projector end
+	//direct := kafka.NewReader(kafka.ReaderConfig{
+	//	Brokers:   []string{"kafka:9092"},
+	//	Topic:     "bids.placed",
+	//	Partition: 0,
+	//	MinBytes:  1,
+	//	MaxBytes:  10 << 20,
+	//})
+	//defer direct.Close()
+	//_ = direct.SetOffset(kafka.FirstOffset) // or LastOffset
+	//
+	//m, err := direct.ReadMessage(context.Background())
+	//log.Info("direct read", zap.Any("msg", m), zap.Error(err))
 
 	//// Create and start server
 	s := server.New(mc.DB, redisClient, cfg, log)

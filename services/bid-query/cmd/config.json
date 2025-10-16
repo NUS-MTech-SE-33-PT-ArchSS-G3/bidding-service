@@ -57,9 +57,7 @@
   "KafkaReader": {
     "brokers": ["kafka:9092"],
     "topic": "bids.placed",
-    "groupId": "bid-query-projector",
-    "clientId": "bid-query-service",
-    "acks": "all",
-    "compression": "snappy"
+    "groupId": "bid-query-projector-v1",
+    "offset": "first"
   }
 }
