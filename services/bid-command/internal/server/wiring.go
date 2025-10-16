@@ -32,7 +32,7 @@ func initDependencies(db *gorm.DB, redis *redis.Client, w *kafka.Writer, cfg *cf
 	placeBidService := place_bid.NewService(place_bid.Deps{
 		BidRepo: repo.NewBidRepo(sqlDb, log),
 		Cache:   cache.NewAuctionMetadataCache(redis, log),
-		Pub:     mq.NewBidsPublisher(w, cfg.KafkaWriter.Topic, log),
+		Pub:     mq.NewBidsPublisher(w, log),
 		Tx:      tx.NewTxManager(sqlDb),
 		Clock:   systemClock{},
 	}, log)

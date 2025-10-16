@@ -10,8 +10,6 @@ import (
 	"kei-services/pkg/infra/redis"
 	"kei-services/pkg/logger"
 	"kei-services/services/bid-command/internal/cfg"
-	"kei-services/services/bid-command/internal/infrastructure/cache"
-	"kei-services/services/bid-command/internal/infrastructure/mq"
 	"kei-services/services/bid-command/internal/server"
 	"kei-services/services/bid-command/sqlc"
 	"net/http"
@@ -21,8 +19,6 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	"github.com/segmentio/kafka-go"
-
 	"go.uber.org/zap"
 )
 
@@ -69,45 +65,38 @@ func main() {
 
 	// Kafka
 	// projector start
-	openedReader := kafkaInfra.NewReader(kafkaInfra.ReaderConfig{
-		Brokers: cfg.KafkaWriter.Brokers,
-		Topic:   "auction.opened",
-		GroupID: "bid-command-meta-sync",
-		Offset:  kafkaInfra.OffsetLast, // or OffsetFirst for fresh groups
-	})
-	defer openedReader.Close()
-
-	closedReader := kafkaInfra.NewReader(kafkaInfra.ReaderConfig{
-		Brokers: cfg.KafkaWriter.Brokers,
-		Topic:   "auction.closed",
-		GroupID: "bid-command-meta-sync",
-		Offset:  kafkaInfra.OffsetLast,
-	})
-	defer closedReader.Close()
-	sub := &mq.AuctionMetaSubscriber{
-		Log:          log,
-		OpenedReader: openedReader,
-		ClosedReader: closedReader,
-		Store:        cache.AuctionMetadataCache{R: redisClient},
-		DefaultTTL:   24 * time.Hour,
-	}
-
-	bg, stopBG := context.WithCancel(context.Background())
-	go func() {
-		if err := sub.Run(bg); err != nil {
-			log.Error("auction meta subscriber stopped", zap.Error(err))
-		}
-	}()
+	//openedReader, err := kafkaInfra.NewReader(kafkaInfra.ReaderConfig{
+	//	Brokers: cfg.KafkaWriter.Brokers,
+	//	Topic:   "auction.opened",
+	//	GroupID: "bid-command-meta-sync",
+	//	Offset:  kafkaInfra.OffsetLast, // or OffsetFirst for fresh groups
+	//})
+	//defer openedReader.Close()
+	//
+	//closedReader := kafkaInfra.NewReader(kafkaInfra.ReaderConfig{
+	//	Brokers: cfg.KafkaWriter.Brokers,
+	//	Topic:   "auction.closed",
+	//	GroupID: "bid-command-meta-sync",
+	//	Offset:  kafkaInfra.OffsetLast,
+	//})
+	//defer closedReader.Close()
+	//sub := &mq.AuctionMetaSubscriber{
+	//	Log:          log,
+	//	OpenedReader: openedReader,
+	//	ClosedReader: closedReader,
+	//	Store:        cache.AuctionMetadataCache{R: redisClient},
+	//	DefaultTTL:   24 * time.Hour,
+	//}
+	//
+	//bg, stopBG := context.WithCancel(context.Background())
+	//go func() {
+	//	if err := sub.Run(bg); err != nil {
+	//		log.Error("auction meta subscriber stopped", zap.Error(err))
+	//	}
+	//}()
 	// todo : move above to auction projector
 
-	writer := kafkaInfra.NewWriter(kafkaInfra.WriterConfig{
-		Brokers:  cfg.KafkaWriter.Brokers,
-		Topic:    cfg.KafkaWriter.Topic,
-		ClientID: cfg.KafkaWriter.ClientID,
-		Acks:     kafka.RequireAll,
-		// Compression: kafka.Snappy,
-		// Balancer:    &kafka.Hash{},
-	}, log)
+	writer := kafkaInfra.NewWriter(cfg.KafkaWriter, log)
 	defer writer.Close()
 
 	//// Create and start server
@@ -133,7 +122,7 @@ func main() {
 	}
 
 	// graceful shutdown
-	stopBG() // stop subscriber
+	//stopBG() // stop subscriber
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	_ = server.Shutdown(shutdownCtx, s, log)

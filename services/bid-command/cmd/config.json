@@ -58,9 +58,7 @@
   },
   "KafkaWriter": {
     "brokers": ["kafka:9092"],
-    "topic": "bids.placed",
-    "clientId": "bid-command-service",
-    "acks": "all",
-    "compression": "snappy"
+    "topic": "",
+    "clientId": "bid-command-service"
   }
 }

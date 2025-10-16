@@ -18,10 +18,11 @@ type BidsPublisher struct {
 	Log    *zap.Logger
 }
 
-func NewBidsPublisher(w *kafka.Writer, topic string, log *zap.Logger) BidsPublisher {
+// NewBidsPublisher requires a multi-topic kafka writer
+func NewBidsPublisher(w *kafka.Writer, log *zap.Logger) BidsPublisher {
 	return BidsPublisher{
 		Writer: w,
-		Topic:  topic,
+		Topic:  "bids.placed",
 		Log:    log,
 	}
 }
