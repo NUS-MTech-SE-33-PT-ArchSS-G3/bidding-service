@@ -28,9 +28,9 @@ func NewMongoBidReadRepo(db *mongo.Database, collection string, log *zap.Logger)
 }
 
 type bidDoc struct {
-	BidID     string    `bson:"bid_id"`
-	AuctionID string    `bson:"auction_id"`
-	BidderID  string    `bson:"bidder_id"`
+	AuctionID string    `bson:"auctionId"`
+	BidID     string    `bson:"bidId"`
+	BidderID  string    `bson:"bidderId"`
 	Amount    float64   `bson:"amount"`
 	At        time.Time `bson:"at"`
 }
@@ -42,14 +42,14 @@ func (r *MongoBidReadRepo) EnsureIndexes(ctx context.Context) error {
 	}
 
 	models := []mongo.IndexModel{
-		// for pagination & listing auction_id + at desc + bid_id desc
+		// for pagination & listing auctionId + at desc + bidId desc
 		{
-			Keys:    bson.D{{Key: "auction_id", Value: 1}, {Key: "at", Value: -1}, {Key: "bid_id", Value: -1}},
+			Keys:    bson.D{{Key: "auctionId", Value: 1}, {Key: "at", Value: -1}, {Key: "bidId", Value: -1}},
 			Options: options.Index().SetName("auction_at_desc_bid_desc"),
 		},
 		// reverse order for ASC
 		{
-			Keys:    bson.D{{Key: "auction_id", Value: 1}, {Key: "at", Value: 1}, {Key: "bid_id", Value: 1}},
+			Keys:    bson.D{{Key: "auctionId", Value: 1}, {Key: "at", Value: 1}, {Key: "bidId", Value: 1}},
 			Options: options.Index().SetName("auction_at_asc_bid_asc"),
 		},
 	}
@@ -59,9 +59,9 @@ func (r *MongoBidReadRepo) EnsureIndexes(ctx context.Context) error {
 
 func (r *MongoBidReadRepo) ListByAuction(ctx context.Context, auctionID string, after *list_bids.Cursor, limit int,
 	asc bool) (items []list_bids.Item, hasMore bool, next *list_bids.Cursor, err error) {
-	log := middleware.LoggerFrom(ctx, r.log).With(zap.String("auction_id", auctionID))
+	log := middleware.LoggerFrom(ctx, r.log).With(zap.String("auctionId", auctionID))
 
-	f := bson.M{"auction_id": auctionID}
+	f := bson.M{"auctionId": auctionID}
 
 	// pagination
 	if after != nil {
@@ -73,14 +73,14 @@ func (r *MongoBidReadRepo) ListByAuction(ctx context.Context, auctionID string, 
 		}
 		f["$or"] = bson.A{
 			bson.M{"at": bson.M{atCmp: after.At}},
-			bson.M{"at": after.At, "bid_id": bson.M{idCmp: after.ID}},
+			bson.M{"at": after.At, "bidId": bson.M{idCmp: after.ID}},
 		}
 	}
 
 	// sort
-	sort := bson.D{{Key: "at", Value: -1}, {Key: "bid_id", Value: -1}}
+	sort := bson.D{{Key: "at", Value: -1}, {Key: "bidId", Value: -1}}
 	if asc {
-		sort = bson.D{{Key: "at", Value: 1}, {Key: "bid_id", Value: 1}}
+		sort = bson.D{{Key: "at", Value: 1}, {Key: "bidId", Value: 1}}
 	}
 
 	findOpts := options.Find().

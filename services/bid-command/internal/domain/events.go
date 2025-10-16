@@ -4,20 +4,20 @@ import "time"
 
 // BidPlaced is a domain event emitted after a bid is accepted
 type BidPlaced struct {
-	AuctionID string
-	BidID     string
-	BidderID  string
-	Amount    float64
-	At        time.Time
+	AuctionID string    `json:"auctionId"`
+	BidID     string    `json:"bidId"`
+	BidderID  string    `json:"bidderId"`
+	Amount    float64   `json:"amount"`
+	At        time.Time `json:"at"`
 }
 
 // FinalBidAccepted is a domain event emitted when the auction is closed and the final bid is accepted
 type FinalBidAccepted struct {
-	AuctionID string
-	BidID     string
-	BidderID  string
-	Amount    float64
-	At        time.Time
+	AuctionID string    `json:"auctionId"`
+	BidID     string    `json:"bidId"`
+	BidderID  string    `json:"bidderId"`
+	Amount    float64   `json:"amount"`
+	At        time.Time `json:"at"`
 }
 
 // AuctionOpened is a domain event emitted by the auction service when an auction is opened

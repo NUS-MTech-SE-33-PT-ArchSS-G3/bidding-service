@@ -14,9 +14,9 @@ import (
 )
 
 type BidDoc struct {
-	AuctionID string    `bson:"auction_id"`
-	BidID     string    `bson:"bid_id"`
-	BidderID  string    `bson:"bidder_id"`
+	AuctionID string    `bson:"auctionId"`
+	BidID     string    `bson:"bidId"`
+	BidderID  string    `bson:"bidderId"`
 	Amount    float64   `bson:"amount"`
 	At        time.Time `bson:"at"`
 }
