@@ -3,6 +3,7 @@
 ## About the Project
 
 ## Project Structure
+```
 ├── generated-client
 ├── openapi
 │   ├── bid-command
@@ -11,46 +12,41 @@
 ├── scripts
 │   └── seed
 └── services
-├── auction-projector
-│   ├── cmd
-│   └── internal
-│       ├── events
-│       ├── projections
-│       │   └── redis
-│       └── projector
-├── bid-command
-│   ├── cmd
-│   ├── internal
-│   │   ├── application
-│   │   │   └── place_bid
-│   │   ├── domain
-│   │   ├── infrastructure
-│   │   │   ├── cache
-│   │   │   ├── db
-│   │   │   │   ├── repo
-│   │   │   │   └── tx
-│   │   │   └── mq
-│   │   ├── presentation
-│   │   │   └── http
-│   │   └── server
-│   ├── openapi
-│   └── sqlc
-│       ├── queries
-│       └── schema
-└── bid-query
-├── cmd
-├── internal
-│   ├── application
-│   │   └── list_bids
-│   ├── infrastructure
-│   │   ├── db
-│   │   │   └── read_repo
-│   │   └── mq
-│   ├── presentation
-│   │   └── http
-│   └── server
-└── openapi
-
+    ├── auction-projector
+    │   ├── cmd
+    │   └── internal
+    │       ├── events
+    │       ├── projections
+    │       │   └── redis
+    │       └── projector
+    ├── bid-command
+    │   ├── cmd
+    │   ├── internal
+    │   │   ├── application
+    │   │   ├── domain
+    │   │   ├── infrastructure
+    │   │   │   ├── cache
+    │   │   │   ├── db
+    │   │   │   └── mq
+    │   │   ├── presentation
+    │   │   └── server
+    │   ├── openapi
+    │   └── sqlc
+    │       ├── queries
+    │       └── schema
+    ├── bid-projector
+    └── bid-query
+        ├── cmd
+        ├── internal
+        │   ├── application
+        │   ├── infrastructure
+        │   │   ├── db
+        │   │   │   └── read_repo
+        │   │   └── mq
+        │   ├── presentation
+        │   └── server
+        └── openapi
+```
 ## Design
 
 ### High Level Architecture
