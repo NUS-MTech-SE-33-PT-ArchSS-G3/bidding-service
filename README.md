@@ -1,6 +1,55 @@
-# Bidding Service
+# Bidding Services
 
 ## About the Project
+
+## Project Structure
+├── generated-client
+├── openapi
+│   ├── bid-command
+│   └── bid-query
+├── pkg
+├── scripts
+│   └── seed
+└── services
+├── auction-projector
+│   ├── cmd
+│   └── internal
+│       ├── events
+│       ├── projections
+│       │   └── redis
+│       └── projector
+├── bid-command
+│   ├── cmd
+│   ├── internal
+│   │   ├── application
+│   │   │   └── place_bid
+│   │   ├── domain
+│   │   ├── infrastructure
+│   │   │   ├── cache
+│   │   │   ├── db
+│   │   │   │   ├── repo
+│   │   │   │   └── tx
+│   │   │   └── mq
+│   │   ├── presentation
+│   │   │   └── http
+│   │   └── server
+│   ├── openapi
+│   └── sqlc
+│       ├── queries
+│       └── schema
+└── bid-query
+├── cmd
+├── internal
+│   ├── application
+│   │   └── list_bids
+│   ├── infrastructure
+│   │   ├── db
+│   │   │   └── read_repo
+│   │   └── mq
+│   ├── presentation
+│   │   └── http
+│   └── server
+└── openapi
 
 ## Design
 
@@ -35,8 +84,37 @@ Subscribes to PriceUpdated events. Stores snapshot for use on Auction EndAt to t
 
 ![auctionservice-priceupdated.png](assets/readme/auctionservice-priceupdated.png)
 
+## Documentation
+
+### OpenAPI
+- [Bidding Service OpenAPI](docs/openapi/bidding-service.yaml)
+
 ## Setting Up
 
 ### Prerequisites
 
-### Installation
+### Run
+
+### Docker
+
+```bash
+open -a Docker
+
+docker compose down --remove-orphans 
+docker compose up -d --build
+
+docker compose up --build
+
+curl -f http://localhost:8081/healthz
+curl -f http://localhost:8081/readyz
+
+
+curl -f http://localhost:8083/healthz
+curl -f http://localhost:8083/readyz
+```
+
+### Kafka-UI
+
+Kafka-UI: http://localhost:8080
+Swagger UI: http://localhost:8081/swagger/openapi/
+Swagger UI: http://localhost:8083/swagger/openapi/
