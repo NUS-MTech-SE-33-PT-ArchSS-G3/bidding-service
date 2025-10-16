@@ -12,7 +12,7 @@ services:
       - mongo-data:/data/db
     healthcheck:
       test: ["CMD-SHELL", "mongosh --quiet --username root --password root --authenticationDatabase admin --eval 'db.runCommand({ ping: 1 })' || exit 1"]
-      interval: 10s
+      interval: 60s
       timeout: 5s
       retries: 20
 
@@ -30,7 +30,7 @@ services:
       - pg-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d bid_command"]
-      interval: 5s
+      interval: 60s
       timeout: 5s
       retries: 20
 
@@ -45,7 +45,7 @@ services:
       - redis-data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
+      interval: 60s
       timeout: 3s
       retries: 20
 
@@ -78,7 +78,7 @@ services:
       - kafka-data:/bitnami/kafka
     healthcheck:
       test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1" ]
-      interval: 10s
+      interval: 60s
       timeout: 5s
       retries: 20
 
@@ -117,7 +117,7 @@ services:
       - ./services/bid-command/cmd/.env:/app/.env:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/healthz || exit 1"]
-      interval: 5s
+      interval: 60s
       timeout: 3s
       retries: 30
       start_period: 10s
@@ -144,7 +144,7 @@ services:
       - ./services/bid-query/cmd/.env:/app/.env:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/healthz || exit 1"]
-      interval: 5s
+      interval: 60s
       timeout: 3s
       retries: 30
       start_period: 10s
