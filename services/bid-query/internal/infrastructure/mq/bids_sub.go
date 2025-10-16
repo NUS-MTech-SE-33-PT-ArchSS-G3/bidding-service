@@ -85,11 +85,11 @@ func (p *BidPlacedProjector) Run(ctx context.Context) error {
 		}
 	}()
 
-	if err := p.waitForAssignment(ctx, 30*time.Second); err != nil {
-		return fmt.Errorf("no partition assignment, %w", err)
+	if err := p.waitForAssignment(ctx, 600*time.Second); err != nil {
+		p.Log.Warn("kafka: no activity yet; continuing to read", zap.Error(err))
 	} else {
 		s := p.BidPlacedReader.Stats()
-		p.Log.Info("kafka: group assigned", zap.String("partition", s.Partition))
+		p.Log.Info("kafka: reader active", zap.Int64("fetches", s.Fetches), zap.Int64("messages", s.Messages))
 	}
 
 	processed := 0
@@ -143,7 +143,7 @@ func (p *BidPlacedProjector) waitForAssignment(ctx context.Context, maxWait time
 	deadline := time.Now().Add(maxWait)
 	for {
 		s := p.BidPlacedReader.Stats()
-		if s.Partition != "" && s.Partition != "-1" {
+		if s.Fetches > 0 || s.Messages > 0 {
 			// no partition assigned yet
 			return nil
 		}
@@ -153,7 +153,7 @@ func (p *BidPlacedProjector) waitForAssignment(ctx context.Context, maxWait time
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(250 * time.Millisecond):
 		}
 	}
 }

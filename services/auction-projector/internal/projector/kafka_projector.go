@@ -84,7 +84,6 @@ func (p *Projector) waitForAssignment(ctx context.Context, maxWait time.Duration
 	deadline := time.Now().Add(maxWait)
 	for {
 		s := p.reader.Stats()
-		// Group readers: first successful fetch/message is the best signal
 		if s.Fetches > 0 || s.Messages > 0 {
 			return nil
 		}
