@@ -50,12 +50,8 @@ func (s *Service) Handle(ctx context.Context, cmd Command) (*Result, error) {
 
 	// fast pre-check using cache
 	auction, err := s.cache.Get(ctx, cmd.AuctionID)
-	if err != nil {
-		log.Warn("cache miss or error", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
-		return nil, fmt.Errorf("load auction meta: %w", err)
-	}
 	if err = domain.ValidateBid(auction, cmd.Amount, nil); err != nil {
-		log.Warn("validate bid failed", zap.String("auction_id", cmd.AuctionID), zap.Error(err))
+		log.Warn("validate bid failed", zap.Error(err))
 		return nil, err
 	}
 
@@ -137,8 +133,8 @@ func (s *Service) Handle(ctx context.Context, cmd Command) (*Result, error) {
 		At:        out.At,
 	}); err != nil {
 		log.Error("publish bids.placed failed",
-			zap.String("auction_id", out.AuctionID),
-			zap.String("bid_id", out.BidID),
+			zap.String("auctionId", out.AuctionID),
+			zap.String("bidId", out.BidID),
 			zap.Error(err))
 		return nil, fmt.Errorf("publish failed: %w", err)
 	}

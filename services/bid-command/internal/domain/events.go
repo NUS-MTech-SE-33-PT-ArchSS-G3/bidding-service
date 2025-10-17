@@ -11,15 +11,6 @@ type BidPlaced struct {
 	At        time.Time `json:"at"`
 }
 
-// FinalBidAccepted is a domain event emitted when the auction is closed and the final bid is accepted
-type FinalBidAccepted struct {
-	AuctionID string    `json:"auctionId"`
-	BidID     string    `json:"bidId"`
-	BidderID  string    `json:"bidderId"`
-	Amount    float64   `json:"amount"`
-	At        time.Time `json:"at"`
-}
-
 // AuctionOpened is a domain event emitted by the auction service when an auction is opened
 type AuctionOpened struct {
 	AuctionID     string    `json:"auctionId"`

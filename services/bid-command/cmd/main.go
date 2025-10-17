@@ -22,8 +22,6 @@ import (
 	"go.uber.org/zap"
 )
 
-var cfgFlag = flag.String("config", "", "path to config file (optional)")
-
 func main() {
 	flag.Parse() // parse -config flag
 	_ = godotenv.Load(".env")
@@ -34,7 +32,7 @@ func main() {
 
 	log := logger.Init(cfg.Logger, cfg.App)
 	if log == nil {
-		panic("failed to initialize logger")
+		panic("initialize logger")
 	}
 	defer func() { _ = log.Sync() }()
 
@@ -44,7 +42,7 @@ func main() {
 	// postgres
 	db, err := postgres.Client(cfg.Postgres, &cfg.Network.Ssl, log)
 	if err != nil {
-		log.Fatal("Failed to connect to database", zap.Error(err))
+		log.Fatal("connect to database", zap.Error(err))
 	}
 	sqlDB, _ := db.DB()
 	if err := sqlc.EnsureSchema(context.Background(), sqlDB); err != nil {
@@ -59,43 +57,11 @@ func main() {
 	// Redis
 	redisClient, err := redis.Client(cfg.Redis, log)
 	if err != nil {
-		log.Fatal("Failed to connect to redis", zap.Error(err))
+		log.Fatal("connect to redis", zap.Error(err))
 	}
 	defer func() { _ = redisClient.Close() }()
 
 	// Kafka
-	// projector start
-	//openedReader, err := kafkaInfra.NewReader(kafkaInfra.ReaderConfig{
-	//	Brokers: cfg.KafkaWriter.Brokers,
-	//	Topic:   "auction.opened",
-	//	GroupID: "bid-command-meta-sync",
-	//	Offset:  kafkaInfra.OffsetLast, // or OffsetFirst for fresh groups
-	//})
-	//defer openedReader.Close()
-	//
-	//closedReader := kafkaInfra.NewReader(kafkaInfra.ReaderConfig{
-	//	Brokers: cfg.KafkaWriter.Brokers,
-	//	Topic:   "auction.closed",
-	//	GroupID: "bid-command-meta-sync",
-	//	Offset:  kafkaInfra.OffsetLast,
-	//})
-	//defer closedReader.Close()
-	//sub := &mq.AuctionMetaSubscriber{
-	//	Log:          log,
-	//	OpenedReader: openedReader,
-	//	ClosedReader: closedReader,
-	//	Store:        cache.AuctionMetadataCache{R: redisClient},
-	//	DefaultTTL:   24 * time.Hour,
-	//}
-	//
-	//bg, stopBG := context.WithCancel(context.Background())
-	//go func() {
-	//	if err := sub.Run(bg); err != nil {
-	//		log.Error("auction meta subscriber stopped", zap.Error(err))
-	//	}
-	//}()
-	// todo : move above to auction projector
-
 	writer := kafkaInfra.NewWriter(cfg.KafkaWriter, log)
 	defer writer.Close()
 
@@ -126,5 +92,4 @@ func main() {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	_ = server.Shutdown(shutdownCtx, s, log)
-
 }
