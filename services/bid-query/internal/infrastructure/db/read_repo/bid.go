@@ -5,7 +5,7 @@ import (
 	"errors"
 	"kei-services/pkg/middleware"
 	"kei-services/services/bid-query/internal/application/list_bids"
-	"kei-services/services/bid-query/internal/read-model"
+	"kei-services/services/bid-query/internal/read_model"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
