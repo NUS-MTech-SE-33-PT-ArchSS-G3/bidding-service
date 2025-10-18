@@ -5,7 +5,7 @@
     "version": "1.0.0"
   },
   "network": {
-    "Port": 8082,
+    "Port": 8080,
     "IsLocalHost": false,
     "ssl": {
       "enabled": false,
@@ -16,7 +16,7 @@
   },
   "Cors": {
     "isEnabled": true,
-    "allowOrigins": ["http://localhost:8080", "http://localhost:8081", "http://localhost:8083"],
+    "allowOrigins": ["http://localhost:8080", "http://localhost:8081", "http://localhost:8082", "http://localhost:8083"],
     "allowMethods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     "allowHeaders": ["Authorization", "Content-Type", "X-Requested-With"],
     "exposeHeaders": ["ETag"],
