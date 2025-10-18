@@ -29,8 +29,8 @@ type MasterHandler struct {
 	ListBidsHandler httpPresentation.HttpController
 }
 
-func (m MasterHandler) GetAuctionsAuctionIdBids(c *gin.Context, auctionId string, params openapi.GetAuctionsAuctionIdBidsParams) {
-	m.ListBidsHandler.GetAuctionsAuctionIdBids(c, auctionId, params)
+func (m MasterHandler) GetApiV1BidsAuctionId(c *gin.Context, auctionId string, params openapi.GetApiV1BidsAuctionIdParams) {
+	m.ListBidsHandler.GetApiV1BidsAuctionId(c, auctionId, params)
 }
 
 func registerHealthroutes(r *gin.Engine, db *mongo.Database, redis *redis.Client, _ *zap.Logger) {

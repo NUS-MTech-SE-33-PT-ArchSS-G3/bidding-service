@@ -7,7 +7,7 @@ servers:
   - url: http://localhost:8083
 
 paths:
-  /auctions/{auctionId}/bids:
+  /api/v1/bids/{auctionId}:
     get:
       summary: List bids for an auction
       description: >

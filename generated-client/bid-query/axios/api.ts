@@ -397,14 +397,14 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {string} auctionId The auction ID
          * @param {string | null} [cursor] Cursor from the previous page, omit for the first page
          * @param {number} [limit] Page size. Max 200.
-         * @param {AuctionsAuctionIdBidsGetDirectionEnum} [direction] Sort in descending or ascending order.
+         * @param {ApiV1BidsAuctionIdGetDirectionEnum} [direction] Sort in descending or ascending order.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        auctionsAuctionIdBidsGet: async (auctionId: string, cursor?: string | null, limit?: number, direction?: AuctionsAuctionIdBidsGetDirectionEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiV1BidsAuctionIdGet: async (auctionId: string, cursor?: string | null, limit?: number, direction?: ApiV1BidsAuctionIdGetDirectionEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'auctionId' is not null or undefined
-            assertParamExists('auctionsAuctionIdBidsGet', 'auctionId', auctionId)
-            const localVarPath = `/auctions/{auctionId}/bids`
+            assertParamExists('apiV1BidsAuctionIdGet', 'auctionId', auctionId)
+            const localVarPath = `/api/v1/bids/{auctionId}`
                 .replace(`{${"auctionId"}}`, encodeURIComponent(String(auctionId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -456,14 +456,14 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {string} auctionId The auction ID
          * @param {string | null} [cursor] Cursor from the previous page, omit for the first page
          * @param {number} [limit] Page size. Max 200.
-         * @param {AuctionsAuctionIdBidsGetDirectionEnum} [direction] Sort in descending or ascending order.
+         * @param {ApiV1BidsAuctionIdGetDirectionEnum} [direction] Sort in descending or ascending order.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async auctionsAuctionIdBidsGet(auctionId: string, cursor?: string | null, limit?: number, direction?: AuctionsAuctionIdBidsGetDirectionEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListBidsResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.auctionsAuctionIdBidsGet(auctionId, cursor, limit, direction, options);
+        async apiV1BidsAuctionIdGet(auctionId: string, cursor?: string | null, limit?: number, direction?: ApiV1BidsAuctionIdGetDirectionEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListBidsResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1BidsAuctionIdGet(auctionId, cursor, limit, direction, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.auctionsAuctionIdBidsGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.apiV1BidsAuctionIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -482,12 +482,12 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {string} auctionId The auction ID
          * @param {string | null} [cursor] Cursor from the previous page, omit for the first page
          * @param {number} [limit] Page size. Max 200.
-         * @param {AuctionsAuctionIdBidsGetDirectionEnum} [direction] Sort in descending or ascending order.
+         * @param {ApiV1BidsAuctionIdGetDirectionEnum} [direction] Sort in descending or ascending order.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        auctionsAuctionIdBidsGet(auctionId: string, cursor?: string | null, limit?: number, direction?: AuctionsAuctionIdBidsGetDirectionEnum, options?: RawAxiosRequestConfig): AxiosPromise<ListBidsResponse> {
-            return localVarFp.auctionsAuctionIdBidsGet(auctionId, cursor, limit, direction, options).then((request) => request(axios, basePath));
+        apiV1BidsAuctionIdGet(auctionId: string, cursor?: string | null, limit?: number, direction?: ApiV1BidsAuctionIdGetDirectionEnum, options?: RawAxiosRequestConfig): AxiosPromise<ListBidsResponse> {
+            return localVarFp.apiV1BidsAuctionIdGet(auctionId, cursor, limit, direction, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -505,23 +505,23 @@ export class DefaultApi extends BaseAPI {
      * @param {string} auctionId The auction ID
      * @param {string | null} [cursor] Cursor from the previous page, omit for the first page
      * @param {number} [limit] Page size. Max 200.
-     * @param {AuctionsAuctionIdBidsGetDirectionEnum} [direction] Sort in descending or ascending order.
+     * @param {ApiV1BidsAuctionIdGetDirectionEnum} [direction] Sort in descending or ascending order.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public auctionsAuctionIdBidsGet(auctionId: string, cursor?: string | null, limit?: number, direction?: AuctionsAuctionIdBidsGetDirectionEnum, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).auctionsAuctionIdBidsGet(auctionId, cursor, limit, direction, options).then((request) => request(this.axios, this.basePath));
+    public apiV1BidsAuctionIdGet(auctionId: string, cursor?: string | null, limit?: number, direction?: ApiV1BidsAuctionIdGetDirectionEnum, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).apiV1BidsAuctionIdGet(auctionId, cursor, limit, direction, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
 /**
  * @export
  */
-export const AuctionsAuctionIdBidsGetDirectionEnum = {
+export const ApiV1BidsAuctionIdGetDirectionEnum = {
     Desc: 'desc',
     Asc: 'asc'
 } as const;
-export type AuctionsAuctionIdBidsGetDirectionEnum = typeof AuctionsAuctionIdBidsGetDirectionEnum[keyof typeof AuctionsAuctionIdBidsGetDirectionEnum];
+export type ApiV1BidsAuctionIdGetDirectionEnum = typeof ApiV1BidsAuctionIdGetDirectionEnum[keyof typeof ApiV1BidsAuctionIdGetDirectionEnum];
 
 

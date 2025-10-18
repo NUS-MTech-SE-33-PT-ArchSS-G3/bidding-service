@@ -12,8 +12,8 @@ import (
 	"go.uber.org/zap"
 )
 
-func (h *HttpController) GetAuctionsAuctionIdBids(c *gin.Context, auctionId string,
-	params openapi.GetAuctionsAuctionIdBidsParams) {
+func (h *HttpController) GetApiV1BidsAuctionId(c *gin.Context, auctionId string,
+	params openapi.GetApiV1BidsAuctionIdParams) {
 	log := middleware.LoggerFrom(c.Request.Context(), h.log)
 
 	log.Info("list bids: request received", zap.String("auctionId", auctionId), zap.Any("params", params))

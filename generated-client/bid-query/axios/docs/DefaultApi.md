@@ -4,10 +4,10 @@ All URIs are relative to *http://localhost:8083*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**auctionsAuctionIdBidsGet**](#auctionsauctionidbidsget) | **GET** /auctions/{auctionId}/bids | List bids for an auction|
+|[**apiV1BidsAuctionIdGet**](#apiv1bidsauctionidget) | **GET** /api/v1/bids/{auctionId} | List bids for an auction|
 
-# **auctionsAuctionIdBidsGet**
-> ListBidsResponse auctionsAuctionIdBidsGet()
+# **apiV1BidsAuctionIdGet**
+> ListBidsResponse apiV1BidsAuctionIdGet()
 
 Returns bids for a given auction, newest first by default, using cursor pagination. `cursor` is from the previous page\'s (`nextCursor`). 
 
@@ -27,7 +27,7 @@ let cursor: string; //Cursor from the previous page, omit for the first page (op
 let limit: number; //Page size. Max 200. (optional) (default to 50)
 let direction: 'desc' | 'asc'; //Sort in descending or ascending order. (optional) (default to 'desc')
 
-const { status, data } = await apiInstance.auctionsAuctionIdBidsGet(
+const { status, data } = await apiInstance.apiV1BidsAuctionIdGet(
     auctionId,
     cursor,
     limit,

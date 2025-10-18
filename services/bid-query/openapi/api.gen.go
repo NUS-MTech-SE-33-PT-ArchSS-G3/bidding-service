@@ -22,10 +22,10 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
-// Defines values for GetAuctionsAuctionIdBidsParamsDirection.
+// Defines values for GetApiV1BidsAuctionIdParamsDirection.
 const (
-	Asc  GetAuctionsAuctionIdBidsParamsDirection = "asc"
-	Desc GetAuctionsAuctionIdBidsParamsDirection = "desc"
+	Asc  GetApiV1BidsAuctionIdParamsDirection = "asc"
+	Desc GetApiV1BidsAuctionIdParamsDirection = "desc"
 )
 
 // Bid defines model for Bid.
@@ -64,8 +64,8 @@ type ProblemDetails struct {
 	Type string `json:"type"`
 }
 
-// GetAuctionsAuctionIdBidsParams defines parameters for GetAuctionsAuctionIdBids.
-type GetAuctionsAuctionIdBidsParams struct {
+// GetApiV1BidsAuctionIdParams defines parameters for GetApiV1BidsAuctionId.
+type GetApiV1BidsAuctionIdParams struct {
 	// Cursor Cursor from the previous page, omit for the first page
 	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
 
@@ -73,11 +73,11 @@ type GetAuctionsAuctionIdBidsParams struct {
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
 
 	// Direction Sort in descending or ascending order.
-	Direction *GetAuctionsAuctionIdBidsParamsDirection `form:"direction,omitempty" json:"direction,omitempty"`
+	Direction *GetApiV1BidsAuctionIdParamsDirection `form:"direction,omitempty" json:"direction,omitempty"`
 }
 
-// GetAuctionsAuctionIdBidsParamsDirection defines parameters for GetAuctionsAuctionIdBids.
-type GetAuctionsAuctionIdBidsParamsDirection string
+// GetApiV1BidsAuctionIdParamsDirection defines parameters for GetApiV1BidsAuctionId.
+type GetApiV1BidsAuctionIdParamsDirection string
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -152,12 +152,12 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// GetAuctionsAuctionIdBids request
-	GetAuctionsAuctionIdBids(ctx context.Context, auctionId string, params *GetAuctionsAuctionIdBidsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetApiV1BidsAuctionId request
+	GetApiV1BidsAuctionId(ctx context.Context, auctionId string, params *GetApiV1BidsAuctionIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) GetAuctionsAuctionIdBids(ctx context.Context, auctionId string, params *GetAuctionsAuctionIdBidsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetAuctionsAuctionIdBidsRequest(c.Server, auctionId, params)
+func (c *Client) GetApiV1BidsAuctionId(ctx context.Context, auctionId string, params *GetApiV1BidsAuctionIdParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiV1BidsAuctionIdRequest(c.Server, auctionId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -168,8 +168,8 @@ func (c *Client) GetAuctionsAuctionIdBids(ctx context.Context, auctionId string,
 	return c.Client.Do(req)
 }
 
-// NewGetAuctionsAuctionIdBidsRequest generates requests for GetAuctionsAuctionIdBids
-func NewGetAuctionsAuctionIdBidsRequest(server string, auctionId string, params *GetAuctionsAuctionIdBidsParams) (*http.Request, error) {
+// NewGetApiV1BidsAuctionIdRequest generates requests for GetApiV1BidsAuctionId
+func NewGetApiV1BidsAuctionIdRequest(server string, auctionId string, params *GetApiV1BidsAuctionIdParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -184,7 +184,7 @@ func NewGetAuctionsAuctionIdBidsRequest(server string, auctionId string, params 
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/auctions/%s/bids", pathParam0)
+	operationPath := fmt.Sprintf("/api/v1/bids/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -299,11 +299,11 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// GetAuctionsAuctionIdBidsWithResponse request
-	GetAuctionsAuctionIdBidsWithResponse(ctx context.Context, auctionId string, params *GetAuctionsAuctionIdBidsParams, reqEditors ...RequestEditorFn) (*GetAuctionsAuctionIdBidsResponse, error)
+	// GetApiV1BidsAuctionIdWithResponse request
+	GetApiV1BidsAuctionIdWithResponse(ctx context.Context, auctionId string, params *GetApiV1BidsAuctionIdParams, reqEditors ...RequestEditorFn) (*GetApiV1BidsAuctionIdResponse, error)
 }
 
-type GetAuctionsAuctionIdBidsResponse struct {
+type GetApiV1BidsAuctionIdResponse struct {
 	Body                      []byte
 	HTTPResponse              *http.Response
 	JSON200                   *ListBidsResponse
@@ -312,7 +312,7 @@ type GetAuctionsAuctionIdBidsResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r GetAuctionsAuctionIdBidsResponse) Status() string {
+func (r GetApiV1BidsAuctionIdResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -320,31 +320,31 @@ func (r GetAuctionsAuctionIdBidsResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetAuctionsAuctionIdBidsResponse) StatusCode() int {
+func (r GetApiV1BidsAuctionIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-// GetAuctionsAuctionIdBidsWithResponse request returning *GetAuctionsAuctionIdBidsResponse
-func (c *ClientWithResponses) GetAuctionsAuctionIdBidsWithResponse(ctx context.Context, auctionId string, params *GetAuctionsAuctionIdBidsParams, reqEditors ...RequestEditorFn) (*GetAuctionsAuctionIdBidsResponse, error) {
-	rsp, err := c.GetAuctionsAuctionIdBids(ctx, auctionId, params, reqEditors...)
+// GetApiV1BidsAuctionIdWithResponse request returning *GetApiV1BidsAuctionIdResponse
+func (c *ClientWithResponses) GetApiV1BidsAuctionIdWithResponse(ctx context.Context, auctionId string, params *GetApiV1BidsAuctionIdParams, reqEditors ...RequestEditorFn) (*GetApiV1BidsAuctionIdResponse, error) {
+	rsp, err := c.GetApiV1BidsAuctionId(ctx, auctionId, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetAuctionsAuctionIdBidsResponse(rsp)
+	return ParseGetApiV1BidsAuctionIdResponse(rsp)
 }
 
-// ParseGetAuctionsAuctionIdBidsResponse parses an HTTP response from a GetAuctionsAuctionIdBidsWithResponse call
-func ParseGetAuctionsAuctionIdBidsResponse(rsp *http.Response) (*GetAuctionsAuctionIdBidsResponse, error) {
+// ParseGetApiV1BidsAuctionIdResponse parses an HTTP response from a GetApiV1BidsAuctionIdWithResponse call
+func ParseGetApiV1BidsAuctionIdResponse(rsp *http.Response) (*GetApiV1BidsAuctionIdResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetAuctionsAuctionIdBidsResponse{
+	response := &GetApiV1BidsAuctionIdResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -379,8 +379,8 @@ func ParseGetAuctionsAuctionIdBidsResponse(rsp *http.Response) (*GetAuctionsAuct
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// List bids for an auction
-	// (GET /auctions/{auctionId}/bids)
-	GetAuctionsAuctionIdBids(c *gin.Context, auctionId string, params GetAuctionsAuctionIdBidsParams)
+	// (GET /api/v1/bids/{auctionId})
+	GetApiV1BidsAuctionId(c *gin.Context, auctionId string, params GetApiV1BidsAuctionIdParams)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -392,8 +392,8 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(c *gin.Context)
 
-// GetAuctionsAuctionIdBids operation middleware
-func (siw *ServerInterfaceWrapper) GetAuctionsAuctionIdBids(c *gin.Context) {
+// GetApiV1BidsAuctionId operation middleware
+func (siw *ServerInterfaceWrapper) GetApiV1BidsAuctionId(c *gin.Context) {
 
 	var err error
 
@@ -407,7 +407,7 @@ func (siw *ServerInterfaceWrapper) GetAuctionsAuctionIdBids(c *gin.Context) {
 	}
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAuctionsAuctionIdBidsParams
+	var params GetApiV1BidsAuctionIdParams
 
 	// ------------- Optional query parameter "cursor" -------------
 
@@ -440,7 +440,7 @@ func (siw *ServerInterfaceWrapper) GetAuctionsAuctionIdBids(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.GetAuctionsAuctionIdBids(c, auctionId, params)
+	siw.Handler.GetApiV1BidsAuctionId(c, auctionId, params)
 }
 
 // GinServerOptions provides options for the Gin server.
@@ -470,34 +470,34 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 		ErrorHandler:       errorHandler,
 	}
 
-	router.GET(options.BaseURL+"/auctions/:auctionId/bids", wrapper.GetAuctionsAuctionIdBids)
+	router.GET(options.BaseURL+"/api/v1/bids/:auctionId", wrapper.GetApiV1BidsAuctionId)
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/8RWbXPbNgz+Kzhud2tvsiQ7SZfqW9KuW3bLliXZrbcsl1ASbLGVSIUvrr2c//sOpGwr",
-	"fknbT/tkS6SAB3iAB3hkhWpaJVFaw7JHZooKG+7/noqSflqtWtRWoH/JG+WkpX84401bI8uG6TA+ithY",
-	"6YZblrFSubxGFjE7b5FlTLomR80WEeNPP2SjdHQ0SF8P0uH1MM1Go+zg4G/Wt8QtDqxoesaM1UJOvDFX",
-	"WKHkWfnUJr8bjg523c9FuXk3v0vT4Z67JerN686g3m19ETGND05oLFl207nqQ+yZjJY59PmImMEHdruy",
-	"qPIPWFjC8Ksw9lSU5hJNq6TBbS4qbs6VxicgrXa4MpYrVSOXZE1YbPxHqz/fahyzjH2TrAsg6dhPiPrF",
-	"ygzXms/pWeLMvnHaKE0GSjSFFi1FyDL2e8sfHIJVH1HCWGmwFQJ9AC2fYARKg3R1DWIMUkGjNIJG42pr",
-	"YhYxOuL5VgB78hti2JW0C63yGpu3aLmozXbKSn+wjf4EKtdwOdDIS8IBOGtrLjkdg2mxEGNRgFVgK2FA",
-	"FYXTGmWBoMY+0Db4ZVGvXM7klNeihFyUECiPYJimcRrDuZCicU3ID50LA8N0FB/tKkYhjeWywF2o/7w8",
-	"A41jDGBsxS2IEqUVY4HGI1uB/zLQSVezJuF3h0evklyUJsnvfjh+3W9Mp8UupMZy68w2zusK4efr6wsI",
-	"F6BQJcIEJWpusYR87uEoLSZCgkE9Rd2V0Bcn+3A2WyMS0uIkSI4Vtt6ZOVMpbaNN2o1rGq7nG57A2+27",
-	"OxUlaKSqI/xYq0/QdJwKWWhs0Df4VobCi8/xeHP57s3B6+NXtzsZ3QuqsrY1WZIEqZmoMi5Uk3TXTeJh",
-	"DhohB32Iz3O60Xidy5DUFd/bjUi1gIXTws6vSFJC8+XINeoTZ6v107ul+1/+uiaL/jZJlz9dA6LY2GLh",
-	"22Gs6PuOWU/FHw71HK5QT0WBcHJxxiI2RW1CeodxGqeUfdWi5K1gGTuI05h0vOW28tjWdf+4Uu2Fr346",
-	"naDdZu0SrdPSUP8aX64cJmKKEjoDEUj8hMbCWGhjqcpLHHNX2wicEXIChZdS0kcRlCaG+/DungRhrFXT",
-	"EY5ToZzxSvqdgRf3ayG+fxn/I5kPTfPlPGQ/oT3p4jlZRkOzxEeseYMWtWHZza5G7dDD2VtGyWaZTxJp",
-	"NPfM9IfaujaCbIf54dnZrKNNVwH+niAjUI2wqzESEkgHS0gPRPgaU8ga6wP47ETZBHTBJwhG/IsxnPMZ",
-	"jNI03uOtFo2wT5x1xLLsKI1Yw2ckBCwbpfQUZIFlw2152gZxpbQFIYHeoiypSqiweg8l6n24SqHRc7Mb",
-	"m3dFgiEJzs3ykZui18Gr/NwSu2Hz8C0wSlP6KZS0GBZA3ra1KHzRJR8MwX/suX1uvdhabXxjb2oi8U1C",
-	"TP1FIVfIS1+2j+z94Dec2cG+XeSKNwhTXjsEbqDfLZRbqqhclXNfXoWSU5SCZPfryoe9H1zig0NjB2FP",
-	"fArhx6JSaCDnxUfvUIe7cPY2CiuQJR2finI9/4paIO0I3QBczkcDSmLMnmsugnP4LD/dEPj+63ja2KZ2",
-	"sHTKy1VoL0S38IRujMBLjYkAbRG/ZB7j4f+AsVNAn/OxcrIM8ylMepb5Rbsn4iv9DrYCG0Esna67UZQl",
-	"Sa0KXlfK2Ow4PT5gi9vFfwEAAP//XCLnQUwNAAA=",
+	"H4sIAAAAAAAC/8RW33PbNhL+V3ZwN3PJHEVSsp1z+GYnl9adpnVtt83U9dggsRI3IQEaPxS5Hv3vHQC0",
+	"REuykzz1SQIB7H7Yb/fbvWeVajslUVrDintmqhpbHv4ek/A/nVYdaksYPvJWOWn9P1zwtmuQFeN8nB4k",
+	"bKp0yy0rmFCubJAlzN51yAomXVuiZsuE8ccX2SSfHIzy16N8fDHOi8mk2Nv7gw0tcYsjS+3AmLGa5CwY",
+	"c5UlJU/EY5v8ejzZ23W+JLF5trzO8/ETZwXqzePOoN5tfZkwjbeONApWXPauhhAHJpOHGIZ4JMzgLbta",
+	"WVTlR6ysx/AjGXtMwpyh6ZQ0uM1Fzc17pfERSKsdroyVSjXIpbdGFttwafXn3xqnrGD/ytYJkPXsZ576",
+	"5coM15rf+bXEhX3jtFHaGxBoKk2dfyEr2M8dv3UIVn1CCVOlwdYI/gJ0fIYJKA3SNQ3QFKSCVmkEjcY1",
+	"1qQsYX6Ll1sPeCK+8Q27gnaqVdlg+xYtp8Zsh0yEjW30R1C7lsuRRi48DsBF13DJ/TaYDiuaUgVWga3J",
+	"gKoqpzXKCkFNw0O76Jclg3Q5kXPekICSBETKExjneZqn8J4kta6N8fH7ZGCcT9KDXclI0lguK9yF+tez",
+	"E9A4xQjG1twCCZSWpoQmIFuB/zrQWZ+zJuPX+wevspKEycrr/x2+Hham07QLqbHcOrON86JG+P7i4hTi",
+	"AaiUQJihRM0tCijvAhylaUYSDOo56j6FvjrY+4vFGhFJi7MoOZZsszNyplbaJpu0G9e2XN9teIJgd+ju",
+	"mARo9Fnn8WOjPkPbc0qy0thiKPCtCMUPX+Lx8uzdm73Xh6+udjL6JKja2s4UWRalZqZEWqk264+bLMAc",
+	"tSRHQ4jPc7pReL3LGNQV39uF6HMBK6fJ3p17SYnFVyLXqI+crderdw/uf/j9wlsMp710hd01IP82tlyG",
+	"cpgqf79nNlDxi0N9B+eo51QhHJ2esITNUZsY3nGap7mPvupQ8o5YwfbSPPU63nFbB2wZ7yibj2O+36+E",
+	"e+n3Zmi3OTtD67Q0vnpNSFYOM5qjhP5uAhI/o7EwJW2sz3GBU+4am4AzJGdQBSH16khRZ1K4id9uvBxM",
+	"tWp7unFOypmgo/8x8OJmLcM3L9M/JQsP0/yhG7Lv0B519NvYd4+jQQvquOYtWtSGFZe7arSHDidvmY8z",
+	"K0J8vDzzQMqwn63TIip2bB2BmM0U2nQVsT/xwgRUS3bVQWL0/MYDpFvP9RpTDBkbAvhiM9kEdMpnCIb+",
+	"whTe8wVM8jx9wltDLdlHznpWWXGQJ6zlC68BrJjkfhUVgRXjbWXaBnGutAWS4L+iFD5FfFYNFgL1U7gE",
+	"aQzc7MYWXHmtkB7O5cOSm2pQvKv4XHl249ARamOS5/6nUtJinP141zVUhYzLPhoP/37g9rnJYmuqCTW9",
+	"KYeeb6/Bvrj8k2vkIqTtPfsw+gkXdvTUGHLOW4Q5bxwCNzAsFR9bn1GlEnchvSol5yjJK+63pQ/7MDrD",
+	"W4fGjuKI+BjC/6taoYGSV5+CQx3PwsnbJE4/1kv4nMS69VUNoR8P+t730BoNKIkpe664PJz9Z/np9f+/",
+	"38bTxiC1g6VjLlZPe0H9rBOrMYEgNSYBtFX6kgWM+/8Axl79QsynykkRW1Ns8qwIM/ZAwVfiHW1FNqJY",
+	"Ot30XajIskZVvKmVscVhfrjHllfLvwMAAP//HLqwZ0cNAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

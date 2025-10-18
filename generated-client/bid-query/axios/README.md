@@ -51,7 +51,7 @@ All URIs are relative to *http://localhost:8083*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*DefaultApi* | [**auctionsAuctionIdBidsGet**](docs/DefaultApi.md#auctionsauctionidbidsget) | **GET** /auctions/{auctionId}/bids | List bids for an auction
+*DefaultApi* | [**apiV1BidsAuctionIdGet**](docs/DefaultApi.md#apiv1bidsauctionidget) | **GET** /api/v1/bids/{auctionId} | List bids for an auction
 
 
 ### Documentation For Models
