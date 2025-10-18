@@ -54,31 +54,45 @@
 
 ### Use Cases
 
-#### Place Bid
+[//]: # ()
+[//]: # (#### Place Bid)
 
-![img.png](assets/readme/place-bid-use-case.png)
+[//]: # ()
+[//]: # (![img.png]&#40;assets/readme/place-bid-use-case.png&#41;)
 
-#### Get Live Price Updates
-![img.png](assets/readme/get-live-price-updates-use-case.png)
+[//]: # ()
+[//]: # (#### Get Live Price Updates)
 
-#### Get Bid History
+[//]: # (![img.png]&#40;assets/readme/get-live-price-updates-use-case.png&#41;)
 
-![img.png](assets/readme/get-bid-history-simple-use-case.png)
+[//]: # ()
+[//]: # (#### Get Bid History)
 
-### Interactions
+[//]: # ()
+[//]: # (![img.png]&#40;assets/readme/get-bid-history-simple-use-case.png&#41;)
 
-#### AuctionOpened & AuctionClosed events
-Subscribes to AuctionOpened and AuctionClosed events. 
+[//]: # ()
+[//]: # (### Interactions)
 
-On AuctionOpened the BiddingService stores the auction metadata in its cache. On AuctionClosed the BiddingService deletes the auction metadata from its cache.
+[//]: # ()
+[//]: # (#### AuctionOpened & AuctionClosed events)
 
-![auctionopened-auctionclosed.png](assets/readme/auctionopened-auctionclosed.png)
+[//]: # (Subscribes to AuctionOpened and AuctionClosed events. )
 
-#### Auction Service
+[//]: # ()
+[//]: # (On AuctionOpened the BiddingService stores the auction metadata in its cache. On AuctionClosed the BiddingService deletes the auction metadata from its cache.)
 
-Subscribes to PriceUpdated events. Stores snapshot for use on Auction EndAt to trigger payments
+[//]: # ()
+[//]: # (![auctionopened-auctionclosed.png]&#40;assets/readme/auctionopened-auctionclosed.png&#41;)
 
-![auctionservice-priceupdated.png](assets/readme/auctionservice-priceupdated.png)
+[//]: # ()
+[//]: # (#### Auction Service)
+
+[//]: # ()
+[//]: # (Subscribes to PriceUpdated events. Stores snapshot for use on Auction EndAt to trigger payments)
+
+[//]: # ()
+[//]: # (![auctionservice-priceupdated.png]&#40;assets/readme/auctionservice-priceupdated.png&#41;)
 
 ## Documentation
 
@@ -101,8 +115,8 @@ docker compose up -d --build
 
 docker compose up --build
 
-curl -f http://localhost:8081/healthz
-curl -f http://localhost:8081/readyz
+curl -f http://localhost:8082/healthz
+curl -f http://localhost:8082/readyz
 
 
 curl -f http://localhost:8083/healthz
@@ -112,5 +126,45 @@ curl -f http://localhost:8083/readyz
 ### Kafka-UI
 
 Kafka-UI: http://localhost:8080
-Swagger UI: http://localhost:8081/swagger/openapi/
+Swagger UI: http://localhost:8082/swagger/openapi/
 Swagger UI: http://localhost:8083/swagger/openapi/
+
+
+## dev
+
+```bash
+docker exec -it kafka bash
+
+# open
+kafka-console-producer.sh --bootstrap-server kafka:9092 \
+--topic auction.opened --property parse.key=true --property key.separator=":"
+
+a_seeded:{"auctionId":"a_seeded","endsAt":"2025-10-16T02:45:00Z","startingPrice":100,"minIncrement":10,"version":1}
+b_seeded:{"auctionId":"b_seeded","endsAt":"2025-10-16T02:45:00Z","startingPrice":100,"minIncrement":10,"version":1}
+
+# close
+kafka-console-producer.sh --bootstrap-server kafka:9092 \
+--topic auction.closed --property parse.key=true --property key.separator=":"
+a_seeded:{"auctionId":"a_seeded","closedAt":"2025-10-16T03:00:00Z","version":2}
+```
+
+```bash
+curl -X 'POST' \
+  'http://localhost:8082/api/v1/bids/a_seeded' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "amount": 131.5,
+  "bidderId": "user_123"
+}'
+```
+
+```bash
+docker exec -it kafka bash
+
+# open
+kafka-console-producer.sh --bootstrap-server kafka:9092 \
+--topic auction.opened --property parse.key=true --property key.separator=":"
+
+b_seeded:{"auctionId":"b_seeded","endsAt":"2025-10-16T02:45:00Z","startingPrice":100,"minIncrement":10,"version":1}
+```
