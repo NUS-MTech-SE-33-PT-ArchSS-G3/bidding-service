@@ -109,12 +109,14 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "8081:8080"  # map to 8081 to avoid conflict with kafka-ui
+      - "8082:8080"  # map to 8082
     environment:
+      - PGDB_HOST=postgres
+      - PGDB_PASSWORD=postgres
+      - REDIS_PASSWORD=
       - CONFIG_PATH=/app/config/config.json
     volumes:
       - ./services/bid-command/cmd/config.json:/app/config/config.json:ro
-      - ./services/bid-command/cmd/.env:/app/.env:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/healthz || exit 1"]
       interval: 60s
@@ -138,10 +140,11 @@ services:
     ports:
       - "8083:8080"
     environment:
+      - MONGO_PASSWORD=root
+      - REDIS_PASSWORD=
       - CONFIG_PATH=/app/config/config.json
     volumes:
       - ./services/bid-query/cmd/config.json:/app/config/config.json:ro
-      - ./services/bid-query/cmd/.env:/app/.env:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/healthz || exit 1"]
       interval: 60s
@@ -163,12 +166,31 @@ services:
     ports:
       - "8085:8080"
     environment:
+      - REDIS_PASSWORD=
       - CONFIG_PATH=/app/config/config.json
     volumes:
       - ./services/auction-projector/cmd/config.json:/app/config/config.json:ro
-      - ./services/auction-projector/cmd/.env:/app/.env:ro
 
-################################################## Seed Data TODO: REMOVE IN PROD
+  # ---------- Bid Projector Service ----------
+  bid-projector:
+    build:
+      context: .
+      dockerfile: services/bid-projector/Dockerfile
+    container_name: bid-projector
+    depends_on:
+      kafka:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    ports:
+      - "8086:8080"
+    environment:
+      - MONGO_PASSWORD=root
+      - CONFIG_PATH=/app/config/config.json
+    volumes:
+      - ./services/bid-projector/cmd/config.json:/app/config/config.json:ro
+
+################################################## Seed Data
   seed-db:
     image: postgres:18
     depends_on:
