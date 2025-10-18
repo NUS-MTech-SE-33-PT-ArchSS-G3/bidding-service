@@ -5,6 +5,7 @@ import (
 	"errors"
 	"kei-services/pkg/middleware"
 	"kei-services/services/bid-query/internal/application/list_bids"
+	"kei-services/services/bid-query/internal/read-model"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -25,14 +26,6 @@ func NewMongoBidReadRepo(db *mongo.Database, collection string, log *zap.Logger)
 		coll: db.Collection(collection),
 		log:  log,
 	}
-}
-
-type bidDoc struct {
-	AuctionID string    `bson:"auctionId"`
-	BidID     string    `bson:"bidId"`
-	BidderID  string    `bson:"bidderId"`
-	Amount    float64   `bson:"amount"`
-	At        time.Time `bson:"at"`
 }
 
 // EnsureIndexes creates indexes. Called only once on service startup
@@ -95,7 +88,7 @@ func (r *MongoBidReadRepo) ListByAuction(ctx context.Context, auctionID string, 
 	}
 	defer cur.Close(ctx)
 
-	var docs []bidDoc
+	var docs []read_model.Bids
 	if err := cur.All(ctx, &docs); err != nil {
 		log.Warn("failed to decode items", zap.Error(err))
 		return nil, false, nil, err
