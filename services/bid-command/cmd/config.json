@@ -5,7 +5,7 @@
     "version": "1.0.0"
   },
   "network": {
-    "Port": 8080,
+    "Port": 8082,
     "IsLocalHost": false,
     "ssl": {
       "enabled": false,
