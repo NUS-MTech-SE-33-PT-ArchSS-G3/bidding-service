@@ -1,13 +1,13 @@
 # DefaultApi
 
-All URIs are relative to *http://localhost:8081*
+All URIs are relative to *http://localhost:8082*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**auctionsAuctionIdBidsPost**](#auctionsauctionidbidspost) | **POST** /auctions/{auctionId}/bids | Place a bid on an auction|
+|[**apiV1BidsAuctionIdPost**](#apiv1bidsauctionidpost) | **POST** /api/v1/bids/{auctionId} | Place a bid on an auction|
 
-# **auctionsAuctionIdBidsPost**
-> PlaceBidResponse auctionsAuctionIdBidsPost(placeBidRequest)
+# **apiV1BidsAuctionIdPost**
+> PlaceBidResponse apiV1BidsAuctionIdPost(placeBidRequest)
 
 Place a new bid for a given auction.   
 
@@ -26,7 +26,7 @@ const apiInstance = new DefaultApi(configuration);
 let auctionId: string; //ID of the auction to bid on (default to undefined)
 let placeBidRequest: PlaceBidRequest; //
 
-const { status, data } = await apiInstance.auctionsAuctionIdBidsPost(
+const { status, data } = await apiInstance.apiV1BidsAuctionIdPost(
     auctionId,
     placeBidRequest
 );

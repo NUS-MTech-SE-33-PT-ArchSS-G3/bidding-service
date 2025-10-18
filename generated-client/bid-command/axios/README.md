@@ -47,11 +47,11 @@ npm install PATH_TO_GENERATED_PACKAGE --save
 
 ### Documentation for API Endpoints
 
-All URIs are relative to *http://localhost:8081*
+All URIs are relative to *http://localhost:8082*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*DefaultApi* | [**auctionsAuctionIdBidsPost**](docs/DefaultApi.md#auctionsauctionidbidspost) | **POST** /auctions/{auctionId}/bids | Place a bid on an auction
+*DefaultApi* | [**apiV1BidsAuctionIdPost**](docs/DefaultApi.md#apiv1bidsauctionidpost) | **POST** /api/v1/bids/{auctionId} | Place a bid on an auction
 
 
 ### Documentation For Models

@@ -61,8 +61,8 @@ type ProblemDetails struct {
 	Type string `json:"type"`
 }
 
-// PostAuctionsAuctionIdBidsJSONRequestBody defines body for PostAuctionsAuctionIdBids for application/json ContentType.
-type PostAuctionsAuctionIdBidsJSONRequestBody = PlaceBidRequest
+// PostApiV1BidsAuctionIdJSONRequestBody defines body for PostApiV1BidsAuctionId for application/json ContentType.
+type PostApiV1BidsAuctionIdJSONRequestBody = PlaceBidRequest
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -137,14 +137,14 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// PostAuctionsAuctionIdBidsWithBody request with any body
-	PostAuctionsAuctionIdBidsWithBody(ctx context.Context, auctionId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// PostApiV1BidsAuctionIdWithBody request with any body
+	PostApiV1BidsAuctionIdWithBody(ctx context.Context, auctionId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	PostAuctionsAuctionIdBids(ctx context.Context, auctionId string, body PostAuctionsAuctionIdBidsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostApiV1BidsAuctionId(ctx context.Context, auctionId string, body PostApiV1BidsAuctionIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) PostAuctionsAuctionIdBidsWithBody(ctx context.Context, auctionId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostAuctionsAuctionIdBidsRequestWithBody(c.Server, auctionId, contentType, body)
+func (c *Client) PostApiV1BidsAuctionIdWithBody(ctx context.Context, auctionId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiV1BidsAuctionIdRequestWithBody(c.Server, auctionId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -155,8 +155,8 @@ func (c *Client) PostAuctionsAuctionIdBidsWithBody(ctx context.Context, auctionI
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostAuctionsAuctionIdBids(ctx context.Context, auctionId string, body PostAuctionsAuctionIdBidsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostAuctionsAuctionIdBidsRequest(c.Server, auctionId, body)
+func (c *Client) PostApiV1BidsAuctionId(ctx context.Context, auctionId string, body PostApiV1BidsAuctionIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiV1BidsAuctionIdRequest(c.Server, auctionId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -167,19 +167,19 @@ func (c *Client) PostAuctionsAuctionIdBids(ctx context.Context, auctionId string
 	return c.Client.Do(req)
 }
 
-// NewPostAuctionsAuctionIdBidsRequest calls the generic PostAuctionsAuctionIdBids builder with application/json body
-func NewPostAuctionsAuctionIdBidsRequest(server string, auctionId string, body PostAuctionsAuctionIdBidsJSONRequestBody) (*http.Request, error) {
+// NewPostApiV1BidsAuctionIdRequest calls the generic PostApiV1BidsAuctionId builder with application/json body
+func NewPostApiV1BidsAuctionIdRequest(server string, auctionId string, body PostApiV1BidsAuctionIdJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPostAuctionsAuctionIdBidsRequestWithBody(server, auctionId, "application/json", bodyReader)
+	return NewPostApiV1BidsAuctionIdRequestWithBody(server, auctionId, "application/json", bodyReader)
 }
 
-// NewPostAuctionsAuctionIdBidsRequestWithBody generates requests for PostAuctionsAuctionIdBids with any type of body
-func NewPostAuctionsAuctionIdBidsRequestWithBody(server string, auctionId string, contentType string, body io.Reader) (*http.Request, error) {
+// NewPostApiV1BidsAuctionIdRequestWithBody generates requests for PostApiV1BidsAuctionId with any type of body
+func NewPostApiV1BidsAuctionIdRequestWithBody(server string, auctionId string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -194,7 +194,7 @@ func NewPostAuctionsAuctionIdBidsRequestWithBody(server string, auctionId string
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/auctions/%s/bids", pathParam0)
+	operationPath := fmt.Sprintf("/api/v1/bids/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -257,13 +257,13 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// PostAuctionsAuctionIdBidsWithBodyWithResponse request with any body
-	PostAuctionsAuctionIdBidsWithBodyWithResponse(ctx context.Context, auctionId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostAuctionsAuctionIdBidsResponse, error)
+	// PostApiV1BidsAuctionIdWithBodyWithResponse request with any body
+	PostApiV1BidsAuctionIdWithBodyWithResponse(ctx context.Context, auctionId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiV1BidsAuctionIdResponse, error)
 
-	PostAuctionsAuctionIdBidsWithResponse(ctx context.Context, auctionId string, body PostAuctionsAuctionIdBidsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostAuctionsAuctionIdBidsResponse, error)
+	PostApiV1BidsAuctionIdWithResponse(ctx context.Context, auctionId string, body PostApiV1BidsAuctionIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiV1BidsAuctionIdResponse, error)
 }
 
-type PostAuctionsAuctionIdBidsResponse struct {
+type PostApiV1BidsAuctionIdResponse struct {
 	Body                      []byte
 	HTTPResponse              *http.Response
 	JSON201                   *PlaceBidResponse
@@ -274,7 +274,7 @@ type PostAuctionsAuctionIdBidsResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r PostAuctionsAuctionIdBidsResponse) Status() string {
+func (r PostApiV1BidsAuctionIdResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -282,39 +282,39 @@ func (r PostAuctionsAuctionIdBidsResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r PostAuctionsAuctionIdBidsResponse) StatusCode() int {
+func (r PostApiV1BidsAuctionIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-// PostAuctionsAuctionIdBidsWithBodyWithResponse request with arbitrary body returning *PostAuctionsAuctionIdBidsResponse
-func (c *ClientWithResponses) PostAuctionsAuctionIdBidsWithBodyWithResponse(ctx context.Context, auctionId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostAuctionsAuctionIdBidsResponse, error) {
-	rsp, err := c.PostAuctionsAuctionIdBidsWithBody(ctx, auctionId, contentType, body, reqEditors...)
+// PostApiV1BidsAuctionIdWithBodyWithResponse request with arbitrary body returning *PostApiV1BidsAuctionIdResponse
+func (c *ClientWithResponses) PostApiV1BidsAuctionIdWithBodyWithResponse(ctx context.Context, auctionId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiV1BidsAuctionIdResponse, error) {
+	rsp, err := c.PostApiV1BidsAuctionIdWithBody(ctx, auctionId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePostAuctionsAuctionIdBidsResponse(rsp)
+	return ParsePostApiV1BidsAuctionIdResponse(rsp)
 }
 
-func (c *ClientWithResponses) PostAuctionsAuctionIdBidsWithResponse(ctx context.Context, auctionId string, body PostAuctionsAuctionIdBidsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostAuctionsAuctionIdBidsResponse, error) {
-	rsp, err := c.PostAuctionsAuctionIdBids(ctx, auctionId, body, reqEditors...)
+func (c *ClientWithResponses) PostApiV1BidsAuctionIdWithResponse(ctx context.Context, auctionId string, body PostApiV1BidsAuctionIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiV1BidsAuctionIdResponse, error) {
+	rsp, err := c.PostApiV1BidsAuctionId(ctx, auctionId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePostAuctionsAuctionIdBidsResponse(rsp)
+	return ParsePostApiV1BidsAuctionIdResponse(rsp)
 }
 
-// ParsePostAuctionsAuctionIdBidsResponse parses an HTTP response from a PostAuctionsAuctionIdBidsWithResponse call
-func ParsePostAuctionsAuctionIdBidsResponse(rsp *http.Response) (*PostAuctionsAuctionIdBidsResponse, error) {
+// ParsePostApiV1BidsAuctionIdResponse parses an HTTP response from a PostApiV1BidsAuctionIdWithResponse call
+func ParsePostApiV1BidsAuctionIdResponse(rsp *http.Response) (*PostApiV1BidsAuctionIdResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &PostAuctionsAuctionIdBidsResponse{
+	response := &PostApiV1BidsAuctionIdResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -363,8 +363,8 @@ func ParsePostAuctionsAuctionIdBidsResponse(rsp *http.Response) (*PostAuctionsAu
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Place a bid on an auction
-	// (POST /auctions/{auctionId}/bids)
-	PostAuctionsAuctionIdBids(c *gin.Context, auctionId string)
+	// (POST /api/v1/bids/{auctionId})
+	PostApiV1BidsAuctionId(c *gin.Context, auctionId string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -376,8 +376,8 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(c *gin.Context)
 
-// PostAuctionsAuctionIdBids operation middleware
-func (siw *ServerInterfaceWrapper) PostAuctionsAuctionIdBids(c *gin.Context) {
+// PostApiV1BidsAuctionId operation middleware
+func (siw *ServerInterfaceWrapper) PostApiV1BidsAuctionId(c *gin.Context) {
 
 	var err error
 
@@ -399,7 +399,7 @@ func (siw *ServerInterfaceWrapper) PostAuctionsAuctionIdBids(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.PostAuctionsAuctionIdBids(c, auctionId)
+	siw.Handler.PostApiV1BidsAuctionId(c, auctionId)
 }
 
 // GinServerOptions provides options for the Gin server.
@@ -429,30 +429,30 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 		ErrorHandler:       errorHandler,
 	}
 
-	router.POST(options.BaseURL+"/auctions/:auctionId/bids", wrapper.PostAuctionsAuctionIdBids)
+	router.POST(options.BaseURL+"/api/v1/bids/:auctionId", wrapper.PostApiV1BidsAuctionId)
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

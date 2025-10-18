@@ -24,7 +24,7 @@ func NewPlaceBidController(log *zap.Logger, svc place_bid.IService) *PlaceBidCon
 
 var _ openapi.ServerInterface = (*PlaceBidController)(nil)
 
-func (h *PlaceBidController) PostAuctionsAuctionIdBids(c *gin.Context, auctionId string) {
+func (h *PlaceBidController) PostApiV1BidsAuctionId(c *gin.Context, auctionId string) {
 	log := middleware.LoggerFrom(c.Request.Context(), h.log)
 	log.Info("post bids: request received", zap.String("auctionId", auctionId), zap.Any("params", c.Request.Body))
 

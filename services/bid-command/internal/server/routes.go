@@ -29,8 +29,8 @@ type MasterHandler struct {
 	PlaceBidHandler httpPresentation.PlaceBidController
 }
 
-func (m MasterHandler) PostAuctionsAuctionIdBids(c *gin.Context, auctionId string) {
-	m.PlaceBidHandler.PostAuctionsAuctionIdBids(c, auctionId)
+func (m MasterHandler) PostApiV1BidsAuctionId(c *gin.Context, auctionId string) {
+	m.PlaceBidHandler.PostApiV1BidsAuctionId(c, auctionId)
 }
 
 func registerHealthroutes(r *gin.Engine, db *gorm.DB, redis *redis.Client, _ *zap.Logger) {

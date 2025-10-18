@@ -4,10 +4,10 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:8081
+  - url: http://localhost:8082
 
 paths:
-  /auctions/{auctionId}/bids:
+  /api/v1/bids/{auctionId}:
     post:
       summary: Place a bid on an auction
       description: >
