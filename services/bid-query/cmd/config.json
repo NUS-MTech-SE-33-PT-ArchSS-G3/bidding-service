@@ -16,7 +16,7 @@
   },
   "Cors": {
     "isEnabled": true,
-    "allowOrigins": ["http://localhost:8080", "http://localhost:8081", "http://localhost:8083"],
+    "allowOrigins": ["http://localhost:5173", "http://localhost:8080", "http://localhost:8081", "http://localhost:8083"],
     "allowMethods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     "allowHeaders": ["Authorization", "Content-Type", "X-Requested-With"],
     "exposeHeaders": ["ETag"],
@@ -40,6 +40,7 @@
   },
   "Mongo": {
     "user": "root",
+    "password": "root",
     "URI": "mongodb://root:root@mongo:27017/bid_query?authSource=admin",
     "dbName": "bid_query",
     "TLS": false,
