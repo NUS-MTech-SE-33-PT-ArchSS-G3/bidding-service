@@ -4,7 +4,7 @@
   "title": "Bid Platform Overview",
   "timezone": "browser",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 2,
   "refresh": "10s",
   "tags": ["bid", "platform"],
   "time": { "from": "now-1h", "to": "now" },
@@ -24,24 +24,59 @@
     {
       "type": "stat",
       "title": "RPS",
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
-      "targets": [
-        { "expr": "sum(rate(${ns}_http_requests_total[1m]))", "legendFormat": "RPS" }
-      ]
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 0 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "sparkline": { "show": true }
+      },
+      "targets": [{ "expr": "sum(rate(${ns}_http_requests_total[1m]))", "legendFormat": "RPS" }]
     },
     {
       "type": "stat",
       "title": "5xx Error Rate (%)",
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 0 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "sparkline": { "show": true }
+      },
       "targets": [
         { "expr": "100 * sum(rate(${ns}_http_requests_total{status=~\"5..\"}[5m])) / sum(rate(${ns}_http_requests_total[5m]))", "legendFormat": "5xx %" }
       ]
     },
     {
+      "type": "stat",
+      "title": "Panics / min",
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 0 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "sparkline": { "show": true }
+      },
+      "targets": [{ "expr": "sum(rate(${ns}_http_panics_total[1m]))", "legendFormat": "panics/min" }]
+    },
+
+    { "type": "timeseries", "title": "RPS (sparkline)",
+      "gridPos": { "h": 3, "w": 8, "x": 0, "y": 4 },
+      "targets": [{ "expr": "sum(rate(${ns}_http_requests_total[1m]))", "legendFormat": "RPS" }],
+      "options": { "legend": { "showLegend": false } }
+    },
+    { "type": "timeseries", "title": "5xx Error Rate % (sparkline)",
+      "gridPos": { "h": 3, "w": 8, "x": 8, "y": 4 },
+      "targets": [
+        { "expr": "100 * sum(rate(${ns}_http_requests_total{status=~\"5..\"}[5m])) / sum(rate(${ns}_http_requests_total[5m]))", "legendFormat": "5xx %" }
+      ],
+      "options": { "legend": { "showLegend": false } }
+    },
+    { "type": "timeseries", "title": "Panics/min (sparkline)",
+      "gridPos": { "h": 3, "w": 8, "x": 16, "y": 4 },
+      "targets": [{ "expr": "sum(rate(${ns}_http_panics_total[1m]))", "legendFormat": "panics/min" }],
+      "options": { "legend": { "showLegend": false } }
+    },
+
+    {
       "type": "timeseries",
       "title": "Latency (p50/p90/p99)",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
-      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 7 },
+      "fieldConfig": { "defaults": { "unit": "s" } },
       "targets": [
         { "expr": "histogram_quantile(0.5, sum by (le) (rate(${ns}_http_request_duration_seconds_bucket[5m])))", "legendFormat": "p50" },
         { "expr": "histogram_quantile(0.9, sum by (le) (rate(${ns}_http_request_duration_seconds_bucket[5m])))", "legendFormat": "p90" },
@@ -51,24 +86,70 @@
     {
       "type": "timeseries",
       "title": "Inflight Requests",
-      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 12 },
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 15 },
+      "targets": [{ "expr": "sum(${ns}_http_inflight_requests)", "legendFormat": "inflight" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Status Code Mix",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 15 },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
       "targets": [
-        { "expr": "sum(${ns}_http_inflight_requests)", "legendFormat": "inflight" }
+        { "expr": "sum(rate(${ns}_http_requests_total{status=~\"2..\"}[1m]))", "legendFormat": "2xx" },
+        { "expr": "sum(rate(${ns}_http_requests_total{status=~\"4..\"}[1m]))", "legendFormat": "4xx" },
+        { "expr": "sum(rate(${ns}_http_requests_total{status=~\"5..\"}[1m]))", "legendFormat": "5xx" }
       ]
     },
     {
       "type": "timeseries",
+      "title": "RPS by Method",
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 21 },
+      "targets": [{ "expr": "sum by (method) (rate(${ns}_http_requests_total[1m]))", "legendFormat": "{{method}}" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Top 5 Routes by RPS",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 21 },
+      "targets": [{ "expr": "topk(5, sum by (route) (rate(${ns}_http_requests_total[1m])))", "legendFormat": "{{route}}" }]
+    },
+    {
+      "type": "timeseries",
       "title": "Route Error Rate (Top 5)",
-      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 12 },
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 27 },
+      "targets": [{ "expr": "topk(5, sum by (route) (rate(${ns}_http_requests_total{status=~\"5..\"}[5m])))", "legendFormat": "{{route}}" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Route Latency p99 (Top 5)",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 27 },
+      "fieldConfig": { "defaults": { "unit": "s" } },
       "targets": [
-        { "expr": "topk(5, sum by (route) (rate(${ns}_http_requests_total{status=~\"5..\"}[5m])))", "legendFormat": "{{route}}" }
+        { "expr": "topk(5, histogram_quantile(0.99, sum by (route, le) (rate(${ns}_http_request_duration_seconds_bucket[5m]))))", "legendFormat": "{{route}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Avg Request Size (bytes)",
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 33 },
+      "fieldConfig": { "defaults": { "unit": "bytes" } },
+      "targets": [
+        { "expr": "sum(rate(${ns}_http_request_size_bytes_sum[5m])) / sum(rate(${ns}_http_request_size_bytes_count[5m]))", "legendFormat": "avg req size" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Avg Response Size (bytes)",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 33 },
+      "fieldConfig": { "defaults": { "unit": "bytes" } },
+      "targets": [
+        { "expr": "sum(rate(${ns}_http_response_size_bytes_sum[5m])) / sum(rate(${ns}_http_response_size_bytes_count[5m]))", "legendFormat": "avg resp size" }
       ]
     },
     {
       "type": "timeseries",
       "title": "Projector – Events/sec",
       "description": "For projector services (choose ns=auctionprojector or bidprojector).",
-      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 18 },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 39 },
       "targets": [
         { "expr": "sum(rate(${ns}_consumer_messages_total[1m])) by (result)", "legendFormat": "{{result}}" }
       ]
