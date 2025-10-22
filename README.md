@@ -4,48 +4,53 @@
 
 ## Project Structure
 ```
+├── docker-compose.yaml
 ├── generated-client
+├── grafana
 ├── openapi
 │   ├── bid-command
 │   └── bid-query
 ├── pkg
+├── prometheus.yml
+├── qodana.yaml
 ├── scripts
-│   └── seed
-└── services
-    ├── auction-projector
-    │   ├── cmd
-    │   └── internal
-    │       ├── events
-    │       ├── projections
-    │       │   └── redis
-    │       └── projector
-    ├── bid-command
-    │   ├── cmd
-    │   ├── internal
-    │   │   ├── application
-    │   │   ├── domain
-    │   │   ├── infrastructure
-    │   │   │   ├── cache
-    │   │   │   ├── db
-    │   │   │   └── mq
-    │   │   ├── presentation
-    │   │   └── server
-    │   ├── openapi
-    │   └── sqlc
-    │       ├── queries
-    │       └── schema
-    ├── bid-projector
-    └── bid-query
-        ├── cmd
-        ├── internal
-        │   ├── application
-        │   ├── infrastructure
-        │   │   ├── db
-        │   │   │   └── read_repo
-        │   │   └── mq
-        │   ├── presentation
-        │   └── server
-        └── openapi
+├── services
+│   ├── auction-projector
+│   │   ├── Dockerfile
+│   │   ├── cmd
+│   │   └── internal
+│   │       ├── events
+│   │       ├── projections
+│   │       └── projector
+│   ├── bid-command
+│   │   ├── Dockerfile
+│   │   ├── cmd
+│   │   ├── internal
+│   │   │   ├── application
+│   │   │   ├── domain
+│   │   │   ├── infrastructure
+│   │   │   ├── presentation
+│   │   │   └── server
+│   │   ├── openapi
+│   │   └── sqlc
+│   ├── bid-projector
+│   │   ├── Dockerfile
+│   │   ├── cmd
+│   │   └── internal
+│   │       ├── events
+│   │       ├── projections
+│   │       └── projector
+│   ├── bid-query
+│   │   ├── Dockerfile
+│   │   ├── cmd
+│   │   ├── internal
+│   │   │   ├── application
+│   │   │   ├── infrastructure
+│   │   │   ├── presentation
+│   │   │   ├── read_model
+│   │   │   └── server
+│   │   └── openapi
+└── sqlc.yaml
 ```
 ## Design
 
@@ -94,41 +99,21 @@
 [//]: # ()
 [//]: # (![auctionservice-priceupdated.png]&#40;assets/readme/auctionservice-priceupdated.png&#41;)
 
-## Documentation
+## Links
+- [Kafka UI](http://localhost:8080)
+- [Bid Command Swagger](http://localhost:8082/swagger/openapi/)
+- [Bid Query Swagger](http://localhost:8083/swagger/openapi/)
+- [Prometheus](http://localhost:9090)
+- [Grafana Bid Platform Dashboard](http://localhost:3000/d/bid-platform/bid-platform-overview)
+    - Username: admin
+    - Password: admin
 
-### OpenAPI
-- [Bidding Service OpenAPI](docs/openapi/bidding-service.yaml)
-
-## Setting Up
-
-### Prerequisites
-
-### Run
-
-### Docker
+## Run Locally
 
 ```bash
 open -a Docker
-
-docker compose down --remove-orphans 
-docker compose up -d --build
-
-docker compose up --build
-
-curl -f http://localhost:8082/healthz
-curl -f http://localhost:8082/readyz
-
-
-curl -f http://localhost:8083/healthz
-curl -f http://localhost:8083/readyz
+docker compose up -d 
 ```
-
-### Kafka-UI
-
-Kafka-UI: http://localhost:8080
-Swagger UI: http://localhost:8082/swagger/openapi/
-Swagger UI: http://localhost:8083/swagger/openapi/
-
 
 ## dev
 
@@ -168,3 +153,4 @@ kafka-console-producer.sh --bootstrap-server kafka:9092 \
 
 b_seeded:{"auctionId":"b_seeded","endsAt":"2025-10-16T02:45:00Z","startingPrice":100,"minIncrement":10,"version":1}
 ```
+
