@@ -1,0 +1,77 @@
+{
+  "id": null,
+  "uid": "bid-platform",
+  "title": "Bid Platform Overview",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "tags": ["bid", "platform"],
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "ns",
+        "type": "custom",
+        "label": "Service (namespace)",
+        "query": "bidcommand,bidquery,auctionprojector,bidprojector",
+        "includeAll": false,
+        "current": { "text": "bidcommand", "value": "bidcommand", "selected": true }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "RPS",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(${ns}_http_requests_total[1m]))", "legendFormat": "RPS" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "5xx Error Rate (%)",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "targets": [
+        { "expr": "100 * sum(rate(${ns}_http_requests_total{status=~\"5..\"}[5m])) / sum(rate(${ns}_http_requests_total[5m]))", "legendFormat": "5xx %" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Latency (p50/p90/p99)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        { "expr": "histogram_quantile(0.5, sum by (le) (rate(${ns}_http_request_duration_seconds_bucket[5m])))", "legendFormat": "p50" },
+        { "expr": "histogram_quantile(0.9, sum by (le) (rate(${ns}_http_request_duration_seconds_bucket[5m])))", "legendFormat": "p90" },
+        { "expr": "histogram_quantile(0.99, sum by (le) (rate(${ns}_http_request_duration_seconds_bucket[5m])))", "legendFormat": "p99" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Inflight Requests",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 12 },
+      "targets": [
+        { "expr": "sum(${ns}_http_inflight_requests)", "legendFormat": "inflight" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Route Error Rate (Top 5)",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 12 },
+      "targets": [
+        { "expr": "topk(5, sum by (route) (rate(${ns}_http_requests_total{status=~\"5..\"}[5m])))", "legendFormat": "{{route}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Projector – Events/sec",
+      "description": "For projector services (choose ns=auctionprojector or bidprojector).",
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 18 },
+      "targets": [
+        { "expr": "sum(rate(${ns}_consumer_messages_total[1m])) by (result)", "legendFormat": "{{result}}" }
+      ]
+    }
+  ]
+}
