@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"kei-services/pkg/metrics"
 	"kei-services/pkg/middleware"
 	swagger "kei-services/pkg/swagger"
 	"kei-services/services/bid-query/internal/cfg"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	ginzap "github.com/gin-contrib/zap"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -36,12 +38,24 @@ func New(db *mongo.Database, redis *redis.Client, cfg *cfg.Config, log *zap.Logg
 		gin.SetMode(gin.DebugMode)
 	}
 
+	met := metrics.New(metrics.Options{
+		Namespace:   "bidquery",
+		ConstLabels: prometheus.Labels{"service": "bid-query", "env": string(cfg.App.Environment)},
+	})
+
+	httpMx := metrics.NewHTTPServerMetrics(met, metrics.HTTPOpts{
+		Namespace:   "bidquery",
+		ConstLabels: prometheus.Labels{"service": "bid-query", "env": string(cfg.App.Environment)},
+	})
+
 	r := gin.New()
 	r.RedirectTrailingSlash = false
 	r.RedirectFixedPath = false
 	r.Use(
-		ginzap.Ginzap(log, time.RFC3339, true),
+		metrics.PanicCounterMiddleware(httpMx),
 		ginzap.RecoveryWithZap(log, true),
+		ginzap.Ginzap(log, time.RFC3339, true),
+		metrics.GinAdapterMiddleware(httpMx),
 
 		middleware.RequestID(),
 		middleware.WithRequestLogger(log),
@@ -54,6 +68,8 @@ func New(db *mongo.Database, redis *redis.Client, cfg *cfg.Config, log *zap.Logg
 	swagger.Serve(func() (*openapi3.T, error) {
 		return openapi.GetSwagger()
 	}, r, cfg.Swagger, log)
+
+	r.GET("/metrics", gin.WrapH(met.Handler)) // prometheus
 
 	registerHealthroutes(r, db, redis, log)
 	registerProtectedRoutes(r, initDependencies(db, redis, cfg, log), cfg, log)

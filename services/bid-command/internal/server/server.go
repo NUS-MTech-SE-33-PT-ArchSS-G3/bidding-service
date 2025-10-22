@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"kei-services/pkg/metrics"
 	"kei-services/pkg/middleware"
 	swagger "kei-services/pkg/swagger"
 	"kei-services/services/bid-command/internal/cfg"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	ginzap "github.com/gin-contrib/zap"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/redis/go-redis/v9"
 	"github.com/segmentio/kafka-go"
 
@@ -37,12 +39,24 @@ func New(db *gorm.DB, redis *redis.Client, w *kafka.Writer, cfg *cfg.Config, log
 		gin.SetMode(gin.DebugMode)
 	}
 
+	met := metrics.New(metrics.Options{
+		Namespace:   "bidcommand",
+		ConstLabels: prometheus.Labels{"service": "bid-command", "env": string(cfg.App.Environment)},
+	})
+
+	httpMx := metrics.NewHTTPServerMetrics(met, metrics.HTTPOpts{
+		Namespace:   "bidcommand",
+		ConstLabels: prometheus.Labels{"service": "bid-command", "env": string(cfg.App.Environment)},
+	})
+
 	r := gin.New()
 	r.RedirectTrailingSlash = false
 	r.RedirectFixedPath = false
 	r.Use(
-		ginzap.Ginzap(log, time.RFC3339, true),
+		metrics.PanicCounterMiddleware(httpMx),
 		ginzap.RecoveryWithZap(log, true),
+		ginzap.Ginzap(log, time.RFC3339, true),
+		metrics.GinAdapterMiddleware(httpMx),
 
 		middleware.RequestID(),
 		middleware.WithRequestLogger(log),
@@ -55,6 +69,8 @@ func New(db *gorm.DB, redis *redis.Client, w *kafka.Writer, cfg *cfg.Config, log
 	swagger.Serve(func() (*openapi3.T, error) {
 		return openapi.GetSwagger()
 	}, r, cfg.Swagger, log)
+
+	r.GET("/metrics", gin.WrapH(met.Handler)) // prometheus
 
 	registerHealthroutes(r, db, redis, log)
 	registerProtectedRoutes(r, initDependencies(db, redis, w, cfg, log), cfg, log)
