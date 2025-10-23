@@ -1,0 +1,63 @@
+{
+  "app": {
+    "name": "bid query service",
+    "environment": "${APP_ENV:-development}",
+    "version": "1.0.0"
+  },
+  "network": {
+    "Port": ${PORT:-8080},
+    "IsLocalHost": false,
+    "ssl": {
+      "enabled": false,
+      "certFile": "",
+      "keyFile": "",
+      "caFile": ""
+    }
+  },
+  "Cors": {
+    "isEnabled": true,
+    "allowOrigins": ["http://localhost:5173", "http://localhost:8080", "http://localhost:8081", "http://localhost:8083"],
+    "allowMethods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    "allowHeaders": ["Authorization", "Content-Type", "X-Requested-With"],
+    "exposeHeaders": ["ETag"],
+    "allowCredentials": true,
+    "allowMaxAge": 600
+  },
+  "Swagger": {
+    "IsEnabled": true,
+    "Title": "Bid Query Service API",
+    "OpenApiName": "openapi"
+  },
+  "Pprof": {
+    "IsEnabled": true,
+    "Port": 6060
+  },
+  "Logger": {
+    "level": "${LOG_LEVEL:-debug}",
+    "format": "console",
+    "output": "stdout",
+    "filePath": "./log/bid.log"
+  },
+  "Mongo": {
+    "user": "${MONGO_USER:-root}",
+    "password": "${MONGO_PASSWORD:-root}",
+    "URI": "${MONGO_URL:-mongodb://root:root@mongo:27017/bid_query?authSource=admin}",
+    "dbName": "${MONGO_DB:-bid_query}",
+    "TLS": false,
+    "ConnectTimeoutSec": 20,
+    "ServerSelectionSec": 20,
+    "MaxPoolSize": 10,
+    "MinPoolSize": 1
+  },
+  "redis": {
+    "Addr": "${REDIS_HOST:-redis}",
+    "port": ${REDIS_PORT:-6379},
+    "poolSize": 10,
+    "password": "${REDIS_PASSWORD:-}"
+  },
+  "KafkaReader": {
+    "brokers": ["${KAFKA_BROKER:-kafka:9092}"],
+    "topic": "${KAFKA_TOPIC:-bids.placed}",
+    "groupId": "${KAFKA_GROUP_ID:-bid-projector-v1}"
+  }
+}
