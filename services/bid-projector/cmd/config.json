@@ -5,7 +5,7 @@
     "version": "1.0.0"
   },
   "network": {
-    "Port": 8080,
+    "Port": 8085,
     "IsLocalHost": false,
     "ssl": {
       "enabled": false,
@@ -22,7 +22,7 @@
   },
   "Mongo": {
     "user": "root",
-    "URI": "mongodb://root:root@mongo:27017/bid_query?authSource=admin",
+    "URI": "mongodb://root:root@mongo.biddergod-dev.local:27017/bid_query?authSource=admin",
     "dbName": "bid_query",
     "TLS": false,
     "ConnectTimeoutSec": 20,
@@ -31,13 +31,13 @@
     "MinPoolSize": 1
   },
   "redis": {
-    "Addr": "redis",
+    "Addr": "redis.biddergod-dev.local",
     "port": 6379,
     "poolSize": 10,
     "password": ""
   },
   "KafkaReader": {
-    "brokers": ["kafka:9092"],
+    "brokers": ["kafka.biddergod-dev.local:9092"],
     "groupTopics": ["bids.placed"],
     "groupId": "bid-projector-v1"
   }

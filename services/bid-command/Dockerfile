@@ -29,13 +29,12 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
 # ------------------------------------------------------------
 FROM alpine:3.20
 
-# Install  ca-certificates, tzdata, curl, and gettext (for envsubst)
+# Install ca-certificates, tzdata, curl
 # ca cert for outbound HTTPS
 # tzdata for time zone math
 # curl for container health checks
-# gettext for environment variable substitution
 # non-root user for later to run the app
-RUN apk add --no-cache ca-certificates tzdata curl gettext \
+RUN apk add --no-cache ca-certificates tzdata curl \
     && adduser -D -u 10001 appuser
 
 # set working dir
@@ -44,24 +43,21 @@ WORKDIR /app
 # copy compiled binary from builder stage
 COPY --from=builder /bin/bid-command /app/bid-command
 
-# copy config template and entrypoint script
-COPY --from=builder /src/services/bid-command/cmd/config.template.json /app/config.template.json
-COPY --from=builder /src/services/bid-command/docker-entrypoint.sh /app/docker-entrypoint.sh
+# copy config file with hardcoded Service Discovery DNS names
+COPY --from=builder /src/services/bid-command/cmd/config.json /app/config.json
 
-# Make entrypoint executable and change ownership to appuser (as root before switching user)
-RUN chmod +x /app/docker-entrypoint.sh && \
-    chown -R appuser:appuser /app
+# Change ownership to appuser (as root before switching user)
+RUN chown -R appuser:appuser /app
 
 # use non root user to run
 USER appuser
 
-# run on port 8080
-EXPOSE 8080
+# run on port 8082
+EXPOSE 8082
 
 # hit /healthz endpoint
 HEALTHCHECK --interval=10s --timeout=3s --retries=3 \
-  CMD curl -fsS http://127.0.0.1:8080/healthz || exit 1
+  CMD curl -fsS http://127.0.0.1:8082/healthz || exit 1
 
-# run the binary with entrypoint script
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+# run the binary directly
 CMD ["/app/bid-command"]
