@@ -48,8 +48,9 @@ COPY --from=builder /bin/bid-query /app/bid-query
 COPY --from=builder /src/services/bid-query/config.template.json /app/config.template.json
 COPY --from=builder /src/services/bid-query/docker-entrypoint.sh /app/docker-entrypoint.sh
 
-# Make entrypoint executable (as root before switching user)
-RUN chmod +x /app/docker-entrypoint.sh
+# Make entrypoint executable and change ownership to appuser (as root before switching user)
+RUN chmod +x /app/docker-entrypoint.sh && \
+    chown -R appuser:appuser /app
 
 # use non root user to run
 USER appuser
