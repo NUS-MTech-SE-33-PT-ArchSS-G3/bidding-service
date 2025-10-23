@@ -2,8 +2,8 @@ name: Build and Push Bid Command to ECR
 
 on:
   push:
-    tags:
-      - '*.*.*'
+    branches:
+      - deployment        # Only trigger on deployment branch
   workflow_dispatch:
 
 env:

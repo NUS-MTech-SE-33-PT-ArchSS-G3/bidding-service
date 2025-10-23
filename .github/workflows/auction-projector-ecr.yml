@@ -2,8 +2,8 @@ name: Build and Push Auction Projector to ECR
 
 on:
   push:
-    tags:
-      - '*.*.*'
+    branches:
+      - deployment
   workflow_dispatch:
 
 env:
