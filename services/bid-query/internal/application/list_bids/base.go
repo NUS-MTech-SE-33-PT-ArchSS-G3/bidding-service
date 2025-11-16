@@ -17,6 +17,17 @@ const (
 	DirectionAsc
 )
 
+func (d Direction) String() string {
+	switch d {
+	case DirectionAsc:
+		return "asc"
+	case DirectionDesc:
+		return "desc"
+	default:
+		return "desc"
+	}
+}
+
 type Query struct {
 	AuctionID string
 	Cursor    string // empty = first page
