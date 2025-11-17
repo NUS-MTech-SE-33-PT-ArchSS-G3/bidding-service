@@ -28,7 +28,7 @@ func Start(cfg *Config, log *zap.Logger) error {
 	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
 	// local only
-	addr := fmt.Sprintf("127.0.0.1:%d", cfg.Port)
+	addr := fmt.Sprintf(":%d", cfg.Port)
 
 	srv := &http.Server{
 		Addr:              addr,

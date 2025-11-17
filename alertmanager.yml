@@ -1,0 +1,22 @@
+route:
+  receiver: 'Bidding Platform'
+  group_by: ['alertname', 'service']
+  group_wait: 10s
+  group_interval: 1m
+  repeat_interval: 1h
+
+receivers:
+  - name: 'Bidding Platform'
+    # Option A: print to a local webhook collector you run
+    # webhook_configs:
+    #   - url: 'http://host.docker.internal:9000/alerts'
+
+    # Option B: Slack (replace with your webhook URL)
+    # slack_configs:
+    #   - api_url: 'https://hooks.slack.com/services/XXX/YYY/ZZZ'
+    #     channel: '#alerts'
+    #     text: >
+    #       *{{ .CommonLabels.alertname }}* ({{ .Status }})
+    #       {{ range .Alerts -}}
+    #       • {{ .Annotations.summary }} — {{ .Annotations.description }}
+    #       {{ end }}

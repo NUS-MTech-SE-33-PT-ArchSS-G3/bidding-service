@@ -115,6 +115,12 @@ open -a Docker
 docker compose up -d 
 ```
 
+## pprof
+
+go tool pprof -http=:8081 http://127.0.0.1:6062/debug/pprof/profile
+go tool pprof -http=:8081 http://127.0.0.1:6062/debug/pprof/heap
+curl http://127.0.0.1:6062/debug/pprof/goroutine?debug=1
+
 ## dev
 
 ```bash
@@ -154,3 +160,4 @@ kafka-console-producer.sh --bootstrap-server kafka:9092 \
 b_seeded:{"auctionId":"b_seeded","endsAt":"2025-10-16T02:45:00Z","startingPrice":100,"minIncrement":10,"version":1}
 ```
 
+docker compose up -d --build bid-command bid-query 

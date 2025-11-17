@@ -41,12 +41,12 @@ func New(db *gorm.DB, redis *redis.Client, w *kafka.Writer, cfg *cfg.Config, log
 
 	met := metrics.New(metrics.Options{
 		Namespace:   "bidcommand",
-		ConstLabels: prometheus.Labels{"service": "bid-command", "env": string(cfg.App.Environment)},
+		ConstLabels: prometheus.Labels{"service": "bidcommand", "env": string(cfg.App.Environment)},
 	})
 
 	httpMx := metrics.NewHTTPServerMetrics(met, metrics.HTTPOpts{
-		Namespace:   "bidcommand",
-		ConstLabels: prometheus.Labels{"service": "bid-command", "env": string(cfg.App.Environment)},
+		Namespace: "bidcommand",
+		//ConstLabels: prometheus.Labels{"service": "bid-command", "env": string(cfg.App.Environment)},
 	})
 
 	r := gin.New()

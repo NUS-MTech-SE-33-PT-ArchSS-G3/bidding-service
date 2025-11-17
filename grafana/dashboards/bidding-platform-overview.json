@@ -23,6 +23,96 @@
   "panels": [
     {
       "type": "stat",
+      "title": "App Uptime",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 45 },
+      "fieldConfig": { "defaults": { "unit": "s", "decimals": 0 } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "sparkline": { "show": true } },
+      "targets": [
+        { "expr": "max(time() - process_start_time_seconds{service=\"${ns}\"})", "legendFormat": "uptime" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Process CPU (cores)",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 45 },
+      "targets": [
+        { "expr": "sum(rate(process_cpu_seconds_total{service=\"${ns}\"}[1m]))", "legendFormat": "CPU cores" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Memory RSS",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 45 },
+      "fieldConfig": { "defaults": { "unit": "bytes" } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "sparkline": { "show": true } },
+      "targets": [
+        { "expr": "max(process_resident_memory_bytes{service=\"${ns}\"})", "legendFormat": "rss" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Go Heap In-Use",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 45 },
+      "fieldConfig": { "defaults": { "unit": "bytes" } },
+      "targets": [
+        { "expr": "sum(go_memstats_heap_inuse_bytes{service=\"${ns}\"})", "legendFormat": "heap" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Goroutines",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 51 },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        { "expr": "max(go_goroutines{service=\"${ns}\"})", "legendFormat": "goroutines" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Threads",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 51 },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        { "expr": "max(go_threads{service=\"${ns}\"})", "legendFormat": "threads" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "GC Pause p99",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 51 },
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "targets": [
+        { "expr": "histogram_quantile(0.99, sum by (le) (rate(go_gc_duration_seconds_bucket{service=\"${ns}\"}[5m])))", "legendFormat": "p99" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "GC Cycles / s",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 51 },
+      "targets": [
+        { "expr": "sum(rate(go_gc_cycles_total{service=\"${ns}\"}[1m]))", "legendFormat": "cycles/s" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Open FDs",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 57 },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        { "expr": "max(process_open_fds{service=\"${ns}\"})", "legendFormat": "fds" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Scrape Health (up)",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 57 },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        { "expr": "min(up{service=\"${ns}\"})", "legendFormat": "up" }
+      ]
+    },
+    {
+      "type": "stat",
       "title": "RPS",
       "gridPos": { "h": 4, "w": 8, "x": 0, "y": 0 },
       "options": {

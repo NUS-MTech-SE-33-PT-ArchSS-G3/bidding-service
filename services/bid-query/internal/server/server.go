@@ -40,12 +40,12 @@ func New(db *mongo.Database, redis *redis.Client, cfg *cfg.Config, log *zap.Logg
 
 	met := metrics.New(metrics.Options{
 		Namespace:   "bidquery",
-		ConstLabels: prometheus.Labels{"service": "bid-query", "env": string(cfg.App.Environment)},
+		ConstLabels: prometheus.Labels{"service": "bidquery", "env": string(cfg.App.Environment)},
 	})
 
 	httpMx := metrics.NewHTTPServerMetrics(met, metrics.HTTPOpts{
-		Namespace:   "bidquery",
-		ConstLabels: prometheus.Labels{"service": "bid-query", "env": string(cfg.App.Environment)},
+		Namespace: "bidquery",
+		//ConstLabels: prometheus.Labels{"service": "bid-query", "env": string(cfg.App.Environment)},
 	})
 
 	r := gin.New()

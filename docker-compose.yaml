@@ -110,6 +110,7 @@ services:
         condition: service_healthy
     ports:
       - "8082:8080"  # map to 8082
+      - "6062:6060"  # pprof
     environment:
       - PGDB_HOST=postgres
       - PGDB_PASSWORD=postgres
@@ -139,6 +140,7 @@ services:
         condition: service_healthy
     ports:
       - "8083:8080"
+      - "6063:6060"  # pprof
     environment:
       - MONGO_PASSWORD=root
       - REDIS_PASSWORD=
@@ -165,6 +167,7 @@ services:
         condition: service_healthy
     ports:
       - "8085:8080"
+      - "6065:6060"  # pprof
     environment:
       - REDIS_PASSWORD=
       - CONFIG_PATH=/app/config/config.json
@@ -184,6 +187,7 @@ services:
         condition: service_healthy
     ports:
       - "8086:8080"
+      - "6066:6060"  # pprof
     environment:
       - MONGO_PASSWORD=root
       - CONFIG_PATH=/app/config/config.json
@@ -199,6 +203,7 @@ services:
       - --web.enable-lifecycle
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts.yml:/etc/prometheus/alerts.yml:ro
       - prom_data:/prometheus
     ports:
       - "9090:9090"
@@ -207,6 +212,18 @@ services:
       bid-command:
         condition: service_started
       bid-query:
+        condition: service_started
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    ports: [ "9093:9093" ]
+    restart: unless-stopped
+    depends_on:
+      prometheus:
         condition: service_started
 
   grafana:
