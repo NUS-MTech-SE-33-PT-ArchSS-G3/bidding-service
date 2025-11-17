@@ -23,9 +23,9 @@ type ServerMetrics struct {
 }
 
 type HTTPOpts struct {
-	Namespace   string
-	ConstLabels prometheus.Labels
-	Buckets     []float64
+	Namespace string
+	//ConstLabels prometheus.Labels
+	Buckets []float64
 }
 
 func NewHTTPServerMetrics(r *Registry, o HTTPOpts) *ServerMetrics {
@@ -35,37 +35,40 @@ func NewHTTPServerMetrics(r *Registry, o HTTPOpts) *ServerMetrics {
 	}
 
 	inflight := prometheus.NewGauge(prometheus.GaugeOpts{
-		Namespace:   o.Namespace,
-		Name:        "http_inflight_requests",
-		Help:        "Current number of inflight HTTP requests.",
-		ConstLabels: o.ConstLabels,
+		Namespace: o.Namespace,
+		Name:      "http_inflight_requests",
+		Help:      "Current number of inflight HTTP requests.",
+		//ConstLabels: o.ConstLabels,
 	})
 	reqTotal := prometheus.NewCounterVec(prometheus.CounterOpts{
-		Namespace:   o.Namespace,
-		Name:        "http_requests_total",
-		Help:        "Total HTTP requests by method, route, and status.",
-		ConstLabels: o.ConstLabels,
+		Namespace: o.Namespace,
+		Name:      "http_requests_total",
+		Help:      "Total HTTP requests by method, route, and status.",
+		//ConstLabels: o.ConstLabels,
 	}, []string{"method", "route", "status"})
 	reqLatency := prometheus.NewHistogramVec(prometheus.HistogramOpts{
-		Namespace:   o.Namespace,
-		Name:        "http_request_duration_seconds",
-		Help:        "Request duration seconds by method and route.",
-		ConstLabels: o.ConstLabels,
-		Buckets:     buckets,
+		Namespace: o.Namespace,
+		Name:      "http_request_duration_seconds",
+		Help:      "Request duration seconds by method and route.",
+		//ConstLabels: o.ConstLabels,
+		Buckets: buckets,
 	}, []string{"method", "route"})
 	reqSize := prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Namespace: o.Namespace, Name: "http_request_size_bytes",
-		Help: "Approximate request size.", ConstLabels: o.ConstLabels,
+		Help: "Approximate request size.",
+		//ConstLabels: o.ConstLabels,
 		Buckets: []float64{200, 500, 1_000, 5_000, 10_000, 50_000, 100_000, 500_000, 1_000_000},
 	}, []string{"method", "route"})
 	respSize := prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Namespace: o.Namespace, Name: "http_response_size_bytes",
-		Help: "Response body size.", ConstLabels: o.ConstLabels,
+		Help: "Response body size.",
+		//ConstLabels: o.ConstLabels,
 		Buckets: []float64{200, 500, 1_000, 5_000, 10_000, 50_000, 100_000, 500_000, 1_000_000},
 	}, []string{"method", "route"})
 	panics := prometheus.NewCounterVec(prometheus.CounterOpts{
 		Namespace: o.Namespace, Name: "http_panics_total",
-		Help: "Total recovered panics by route.", ConstLabels: o.ConstLabels,
+		Help: "Total recovered panics by route.",
+		//ConstLabels: o.ConstLabels,
 	}, []string{"route"})
 
 	r.Reg.MustRegister(inflight, reqTotal, reqLatency, reqSize, respSize, panics)

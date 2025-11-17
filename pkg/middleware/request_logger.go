@@ -1,43 +1,50 @@
 package middleware
 
 import (
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"time"
 )
 
 func RequestLogger(log *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
-		c.Get(RequestIDKey)
 		c.Next() // process request
 
-		// log request details
-		latency := time.Since(start)
+		rid := c.GetString(RequestIDKey)
+		if rid == "" {
+			rid = c.Writer.Header().Get(RequestIDHeader)
+		}
 
+		reqLog := LoggerFrom(c.Request.Context(), log).With(
+			zap.String("requestId", rid),
+		)
+
+		// log request details
 		status := c.Writer.Status()
 		user, _ := c.Get("username")
 		username, _ := user.(string)
 
-		logFields := []zap.Field{
-			zap.String("requestID", c.GetHeader(RequestIDHeader)),
+		reqLog = reqLog.With(
+			zap.String("requestID", c.GetString(RequestIDKey)),
 			zap.String("method", c.Request.Method),
 			zap.String("path", c.FullPath()),
 			zap.String("query", c.Request.URL.RawQuery),
 			zap.Int("status", status),
 			zap.String("ip", c.ClientIP()),
 			zap.String("userAgent", c.Request.UserAgent()),
-			zap.Duration("latency", latency),
-			zap.String("user", username),
-		}
+			zap.Duration("latency", time.Since(start)),
+			zap.String("user", username))
 
 		switch {
 		case status >= 500:
-			log.Error("HTTP 5XX", logFields...)
+			reqLog.Error("HTTP 5XX")
 		case status >= 400:
-			log.Warn("HTTP 4XX", logFields...)
+			reqLog.Warn("HTTP 4XX")
 		default:
-			log.Info("HTTP request", logFields...)
+			reqLog.Info("HTTP request")
+
 		}
 	}
 }

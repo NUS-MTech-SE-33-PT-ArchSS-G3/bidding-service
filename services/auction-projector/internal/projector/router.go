@@ -11,7 +11,7 @@ import (
 // Router maps topic + payload to handler
 type Router struct {
 	Codec    *events.Codec
-	Handlers AuctionHandlers // todo after testing, accept array of handlers
+	Handlers AuctionHandlers // todo array
 }
 
 func (r *Router) Route(msg kafka.Message) (evt any, handler func(context.Context, any) error, err error) {
