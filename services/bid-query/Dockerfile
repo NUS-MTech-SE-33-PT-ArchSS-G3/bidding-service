@@ -43,6 +43,9 @@ WORKDIR /app
 # copy compiled binary from builder stage
 COPY --from=builder /bin/bid-query /app/bid-query
 
+# copy config file from builder stage
+COPY --from=builder /src/services/bid-query/cmd/config.json /app/config.json
+
 # use non root user to run
 USER appuser
 

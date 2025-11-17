@@ -44,7 +44,7 @@ func (h *HttpController) GetApiV1BidsAuctionId(c *gin.Context, auctionId string,
 	log.Debug("list bids: resolved query arguments",
 		zap.String("auctionId", auctionId),
 		zap.Int("limit", limit),
-		zap.String("direction", string(direction)),
+		zap.String("direction", direction.String()),
 		zap.String("cursor", cursor),
 	)
 

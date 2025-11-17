@@ -30,7 +30,7 @@ func (s *Service) Handle(ctx context.Context, q Query) (*Result, error) {
 	log := middleware.LoggerFrom(ctx, s.log).With(
 		zap.String("auctionId", q.AuctionID),
 		zap.Int("limit", q.Limit),
-		zap.String("direction", string(q.Direction)),
+		zap.String("direction", q.Direction.String()),
 	)
 
 	// sanitize
