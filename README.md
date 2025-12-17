@@ -6,6 +6,27 @@ This repository contains the services for the bidding bounded context and projec
 The bidding bounded context has been split into command and query services, following the CQRS pattern.
 The Projector Services tier is decomposed into two subsystems and are responsible for consuming domain events from Kafka and maintaining their respective materialized views.
 
+
+## Table of Contents
+
+- [Project Structure](#project-structure)
+- [Design](#design)
+    - [High Level Architecture](#high-level-architecture)
+    - [Service Design](#service-design)
+        - [Bid Command Service](#bid-command-service)
+        - [Bid Query Service](#bid-query-service)
+        - [Auction Projector](#auction-projector)
+        - [Bid Projector](#bid-projector)
+    - [Key Architecture Decisions](#key-architecture-decisions)
+        - [CQRS Pattern](#cqrs-pattern)
+        - [Polyglot Persistence (MongoDB, PostgreSQL)](#polyglot-persistence-mongodb-postgresql)
+        - [Projector services for Domain Events](#projector-services-for-domain-events)
+        - [Event Streaming with Apache Kafka](#event-streaming-with-apache-kafka)
+        - [Not using 2PC or Transactional Outbox pattern](#not-using-2pc-or-transactional-outbox-pattern)
+        - [Observability: Prometheus, Prometheus Alarms, and Grafana](#observability-prometheus-prometheus-alarms-and-grafana)
+- [Run Locally (Mac)](#run-locally-mac)
+- [Links](#links)
+
 ## Project Structure
 ```
 ├── docker-compose.yaml
